@@ -138,3 +138,42 @@ h2{font-size:15px;letter-spacing:-.04em;margin:0}
  .language-select-wrap{width:119px}
  .chrome-current{margin-right:4px;font-size:10px}
 }
+
+/* Explicit-approval dependency check: one overlay, no hidden install operation. */
+[hidden]{display:none!important}
+.dependency-overlay{position:fixed;inset:0;background:rgba(10,25,31,.76);z-index:99;display:grid;place-items:center;padding:24px;backdrop-filter:blur(5px)}
+.dependency-panel{width:min(680px,100%);max-height:min(690px,91vh);overflow:auto;background:#e6efec;border:1px solid #86aaa1;box-shadow:14px 16px 0 rgba(0,0,0,.22);padding:27px 29px 25px;color:#17343b}
+.dependency-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:20px}
+.dependency-heading h2{font-size:29px;letter-spacing:-.055em;line-height:1.12;margin:12px 0 0;font-weight:660}
+.dependency-kicker{font:500 11px "Workbench",Bahnschrift,sans-serif;letter-spacing:.03em;color:#427b72}
+.dependency-x{border:1px solid #a4beb7;background:none;width:34px;height:34px;display:grid;place-items:center;color:#21504b}
+.dependency-x:hover{background:#c9ded6}.dependency-x svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.7}
+.dependency-intro{font-size:13px;color:#56716c;line-height:1.6;max-width:510px;margin:16px 0 23px}
+.dependency-table{border-top:1px solid #afc8bf}
+.dependency-item{display:grid;grid-template-columns:11px minmax(160px,1fr) auto auto;gap:12px;align-items:center;border-bottom:1px solid #afc8bf;min-height:64px;padding:12px 0}
+.dependency-item .dependency-signal{height:8px;width:8px;background:#4d9589;border-radius:50%}
+.dependency-item.missing .dependency-signal{background:#bf8351}
+.dependency-item strong{font-size:14px;font-weight:650}.dependency-item small{display:block;font-size:11px;color:#6c847e;max-width:340px;margin-top:2px}
+.dependency-item .dependency-state{font-size:11px;font-weight:650;color:#45796f}
+.dependency-item.missing .dependency-state{color:#ab7049}
+.dependency-item button{background:transparent;color:#326d63;border:1px solid #92b8ad;padding:8px 11px;font-size:11px;font-weight:700;cursor:pointer}
+.dependency-item button:hover{background:#c9dfd5}
+.dependency-approval{margin-top:23px;padding:20px;border:1px solid #aac4bb;background:#d4e5df}
+.dependency-description{color:#3f675e;font-size:12px;line-height:1.6;margin:0 0 13px}
+.dependency-consent{display:flex;align-items:flex-start;gap:11px;font-size:12px;color:#365b55;line-height:1.5;cursor:pointer;margin:11px 0 20px}
+.dependency-consent input{margin:3px 0 0;accent-color:#266d61;width:16px;height:16px;flex:none}
+.dependency-approval .btn{min-height:38px;padding:10px 16px}
+.dependency-actions{display:flex;gap:14px;align-items:center;justify-content:space-between;margin-top:19px}
+.dependency-actions>span{font-size:12px;color:#4e7169}
+.dependency-actions .btn{min-height:36px;padding:9px 13px}
+.dependency-panel button:focus-visible,.dependency-panel input:focus-visible{outline:2px solid #2e8277;outline-offset:3px}
+
+/* Shared, evidence-based indicator colors across macOS and Windows. */
+.svc-indicator.verified{background:#15917c;box-shadow:0 0 0 5px #e3efe7}
+.svc-indicator.unverified{background:#82938f;box-shadow:0 0 0 5px #e5eae8}
+.svc-indicator.attention{background:#b87237;box-shadow:0 0 0 5px #f6e8d4}
+.svc-indicator.blocked,.svc-indicator.offline{background:#bd5550;box-shadow:0 0 0 5px #f3e1de}
+.top-status.verified{color:#8adaad}
+.top-status.unverified{color:#b8c5c1}
+.top-status.attention{color:#eeb984}
+.top-status.blocked,.top-status.offline{color:#ef9b92}

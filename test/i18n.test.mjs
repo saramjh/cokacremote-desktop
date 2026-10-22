@@ -8,7 +8,7 @@ const all=Object.keys(dictionaries.en);
 const placeholders=(s)=>[...s.matchAll(/\{([a-z][a-zA-Z0-9]*)\}/g)].map(x=>x[1]).sort();
 test('seven supported language packs have identical complete keys and interpolation parameters',()=>{
  assert.deepEqual(supported,['en','ko','ja','zh','es','fr','de']);
- assert.equal(all.length,112);
+ assert.equal(all.length,135);
  for(const code of supported){
   assert.deepEqual(Object.keys(dictionaries[code]).sort(),[...all].sort(),code+' keys');
   for(const key of all){

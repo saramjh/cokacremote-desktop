@@ -52,9 +52,26 @@
  </div>
  <div class="operations">
   <div><h2 data-i18n="status.controls">Connection controls</h2><p id="actionNote" data-i18n="status.controlsDesc">Choose the smallest safe recovery action after diagnosis.</p></div>
-  <div class="action-buttons"><button class="btn primary" id="repair" data-i18n="status.repair">Reuse / Repair</button><button class="btn secondary" id="verify" data-i18n="status.verify">Verify all</button><button class="btn ghost" id="restart" data-i18n="status.restart">Force restart</button><button class="btn danger-ghost" id="stop" data-i18n="status.stop">Stop service</button></div>
+  <div class="action-buttons"><button class="btn primary" id="repair" data-i18n="status.repair">Reuse / Repair</button><button class="btn secondary" id="verify" data-i18n="status.verify">Verify all</button><button class="btn secondary" id="envCheck" data-i18n="deps.check">Check dependencies</button><button class="btn ghost" id="restart" data-i18n="status.restart">Force restart</button><button class="btn danger-ghost" id="stop" data-i18n="status.stop">Stop service</button></div>
  </div>
  <div class="bottom-line"><div><span class="footer-symbol"></span><span id="chatState" data-i18n="status.plugin">Check the MCP connection status in ChatGPT.</span></div><button class="text-action" id="openChat"><span data-i18n="status.openChat">Open ChatGPT</span> <svg viewBox="0 0 16 16"><path d="M5 11L11 5M5 5h6v6"/></svg></button></div>
  <div class="notice-bar" id="notice" data-i18n="status.footer" role="status" aria-live="polite">Closing this window does not stop the background service.</div>
  </main></div>
-</div><script type="module" src="./app.js"></script></body></html>
+</div><script type="module" src="./app.js"></script>
+<div id="dependencyDialog" class="dependency-overlay" hidden>
+ <section class="dependency-panel" role="dialog" aria-modal="true" aria-labelledby="dependencyHeading">
+  <div class="dependency-heading">
+   <div><span class="dependency-kicker" data-i18n="deps.eyebrow">Environment readiness</span><h2 id="dependencyHeading" data-i18n="deps.title">Prepare the missing tools</h2></div>
+   <button type="button" id="dependencyClose" class="dependency-x" data-i18n-aria="deps.close" aria-label="Close dependency manager"><svg viewBox="0 0 20 20"><path d="M4 4l12 12M16 4 4 16"/></svg></button>
+  </div>
+  <p class="dependency-intro" data-i18n="deps.intro">Existing software is reused. Missing components require your explicit approval before installation.</p>
+  <div class="dependency-table" id="dependencyRows" role="list" aria-live="polite"></div>
+  <div id="dependencyApproval" class="dependency-approval" hidden>
+   <p id="dependencyDescription" class="dependency-description"></p>
+   <label class="dependency-consent"><input id="dependencyConsent" type="checkbox"/><span data-i18n="deps.consent">I authorize installing the selected package from the stated source.</span></label>
+   <button id="dependencyInstall" class="btn primary" type="button" disabled data-i18n="deps.install">Install selected package</button>
+  </div>
+  <div class="dependency-actions"><span id="dependencyStatus" role="status" data-i18n="deps.ready">No changes requested.</span><button id="dependencyRescan" class="btn secondary" type="button" data-i18n="deps.rescan">Inspect again</button></div>
+ </section>
+</div>
+</body></html>

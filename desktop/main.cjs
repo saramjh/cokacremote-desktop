@@ -15,6 +15,41 @@ const probe=join(scripts,'platform','windows','status.ps1');
 const keyfile=join(process.env.USERPROFILE||process.env.HOME||'', '.cokacremote','oauth-approval-key');
 const powershell=join(process.env.WINDIR||'C:\\Windows','System32','WindowsPowerShell','v1.0','powershell.exe');
 const allowed=new Set(['setup','restart','stop']);
+const dependencyIds=new Set(['node','git','cloudflared','cokacremote']);
+const bootstrapWindows=join(scripts,'bootstrap','windows.ps1');
+const bootstrapMac=join(scripts,'bootstrap','macos.sh');
+const readMacScript=(args=[],timeout=180000)=>{
+ return new Promise((resolve,reject)=>{
+  if(!existsSync(bootstrapMac))return reject(Error('macOS dependency helper was not packaged'));
+  const child=spawn('/bin/bash',[bootstrapMac,...args],{windowsHide:true,stdio:['ignore','pipe','pipe'],env:{...process.env,PATH:'/opt/homebrew/bin:/usr/local/bin:'+(process.env.PATH||'/usr/bin:/bin')}});
+  let out='',error='';
+  child.stdout.on('data',b=>{out=(out+b.toString('utf8')).slice(-8000)});
+  child.stderr.on('data',b=>{error=(error+b.toString('utf8')).slice(-2500)});
+  const timer=setTimeout(()=>child.kill(),timeout);
+  child.once('error',e=>{clearTimeout(timer);reject(e)});
+  child.once('exit',(code,signal)=>{clearTimeout(timer);if(code!==0||signal)reject(Error(error||'Dependency operation failed'));else resolve(out)});
+ });
+};
+async function inspectDependencies(){
+ const data=isMac?await readMacScript(['--probe'],20000):await runPS(bootstrapWindows,['-Action','Probe'],20000);
+ return JSON.parse(data.trim());
+}
+async function installDependency(name,consent){
+ if(!dependencyIds.has(name))throw Error('Dependency not allowlisted');
+ if(consent!==true)throw Error('User approval was not given');
+ if(operating)throw Error('Another operation is in progress');
+ operating=true;
+ try{
+  const before=await inspectDependencies();
+  if(before.components.some(x=>x.name===name&&x.installed))return {result:'REUSED',component:name};
+  const output=isMac?
+   await readMacScript(['--install',name,'--approved'],240000):
+   await runPS(bootstrapWindows,['-Action','Install','-Component',name,'-Approved'],240000);
+  latest=null;
+  const data=JSON.parse(output.trim().split(/\r?\n/).filter(Boolean).at(-1));
+  return {result:data.result,component:name,requiresReprobe:true};
+ }finally{operating=false}
+}
 const languageCodes=new Set(['en','ko','ja','zh','es','fr','de']);
 function preferencesFile(){return join(app.getPath('userData'),'ui-preferences.json')}
 function savedLanguage(){try{const code=JSON.parse(readFileSync(preferencesFile(),'utf8')).language;return languageCodes.has(code)?code:null}catch{return null}}
@@ -90,6 +125,8 @@ function secureString(filename){
 function setupHandlers(){
  ipcMain.handle('language:get',()=>({selected:isQaLanguage?qaLanguage:savedLanguage(),system:app.getLocale()}));
  ipcMain.handle('language:set',(_event,code)=>isQaLanguage?({language:code}):saveLanguage(code));
+ ipcMain.handle('dependencies:inspect',()=>inspectDependencies());
+ ipcMain.handle('dependencies:install',(_e,name,consent)=>installDependency(String(name),consent===true));
  ipcMain.handle('status',async(_e,remote)=>query(remote));
  ipcMain.handle('operate',async(_e,name)=>action(name));
  ipcMain.handle('copy',async(_e,type)=>{

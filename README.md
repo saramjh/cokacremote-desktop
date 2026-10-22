@@ -1,5 +1,20 @@
 # cokacremote Desktop Manager
 
+> A local-first operator console for [cokacremote](https://github.com/kstost/cokacremote), OAuth, and Cloudflare Quick Tunnel. The **manager** helps you maintain a visible, authenticated MCP connection; the actual tools run on your own computer.
+
+**Start here:** [Connect to ChatGPT](docs/CHATGPT_SETUP.md) · [Interactive showcase](showcase/index.html) · [Dependency preparation](docs/DEPENDENCIES.md) · [Indicator status contract](docs/STATUS_MODEL.md) · [macOS security and notarization](docs/MACOS_SECURITY.md)
+
+### First-run workflow
+
+1. **Inspect** Node.js, Git, cloudflared, and the upstream MCP server. Healthy existing components remain untouched.
+2. **Approve** each missing dependency deliberately, after reviewing its vendor, destination and scope.
+3. **Install and verify** only missing tools from Windows Package Manager or Homebrew; unknown existing installations are held for manual review rather than overwritten.
+4. **Connect** by copying the manager's HTTPS MCP endpoint into ChatGPT's custom MCP server/plugin setup and completing OAuth approval in **your own account**.
+
+The source tree includes read-only platform probes and permission-gated installers under `bootstrap/`. **These are implementation building blocks, not yet a complete Tauri first-run GUI wizard or a promise that v0.3.0 can provision every fresh PC.** Finish and test full clean-machine installation before presenting it as a production one-click installer.
+
+The showcase is an animated explainer: its simulated statuses are **not measurements of a visitor's device**.
+
 ## Relationship to cokacremote
 
 **Based on [kstost/cokacremote](https://github.com/kstost/cokacremote)** (upstream MCP server). This repository is an **independent desktop management and deployment extension**, not an official upstream release or an automatically synchronized GitHub fork.
@@ -66,14 +81,14 @@ Prerequisites: Node.js 24+, npm. Native platform package preparation requires th
 npm ci
 node --test test/reconcile.test.mjs
 # macOS ARM64:
-bash scripts/build-macos.sh arm64
+bash scripts/build-macos-safe.sh arm64 0.3.0
 ```
 
 The Windows release installer and Windows platform automation scripts originate from the existing `cokacremote` Windows deployment. Windows packaging is maintained separately to preserve Windows Task Scheduler behavior; `platform/windows` contains inspectable controller modules and contracts.
 
 ## Limitations
 
-- Release `v0.2.0` is a usable local management package, **not** a guarantee of full clean-machine installation on every PC. Windows dependency installation and a fresh macOS system still require end-to-end testing.
+- Release `v0.3.0` is a usable local management package, **not** a guarantee of full clean-machine installation on every PC. Windows dependency installation and a fresh macOS system still require end-to-end testing.
 - macOS currently supports Apple Silicon in the published binary; an Intel build requires its own runtime packaging and test.
 - The published macOS app is ad-hoc signed, not notarized.
 - Neither package can attest to an active ChatGPT connector without inspecting the user's ChatGPT interface.
