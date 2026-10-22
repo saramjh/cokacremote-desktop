@@ -1,3 +1,5 @@
+import {realpathSync} from 'node:fs';
+import {fileURLToPath} from 'node:url';
 import {spawn,execFileSync} from 'node:child_process';
 import {readFileSync,writeFileSync,existsSync,mkdirSync,openSync,closeSync,copyFileSync} from 'node:fs';
 import {join,resolve} from 'node:path';
@@ -95,7 +97,7 @@ export async function operate(action,{supervisor=false}={}){
  }
  throw Error('Unsupported action');
 }
-if(import.meta.url==='file://'+process.argv[1]){
+if(process.argv[1] && realpathSync(fileURLToPath(import.meta.url))===realpathSync(process.argv[1])){
  try{const result=await operate(process.argv[2]||'setup');console.log(JSON.stringify({result:result.result,ready:result.state?.ready,code:result.reason||null}))}
  catch(e){console.error('OPERATION_FAILED '+e.message);process.exitCode=1}
 }

@@ -11,3 +11,6 @@ release/
 **/oauth-state.json
 **/oauth-approval-key
 qa-*
+
+# Generated Tauri frontend bridge snapshot
+/ui/reconcile.mjs

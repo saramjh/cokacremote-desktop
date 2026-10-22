@@ -1,6 +1,6 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self'; script-src 'self'; img-src 'self' data:; connect-src 'none'; object-src 'none'; base-uri 'none'"><title>cokacremote / Connection Manager</title><link rel="stylesheet" href="./main.css"></head><body>
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self'; script-src 'self'; img-src 'self' data:; connect-src ipc: http://ipc.localhost; object-src 'none'; base-uri 'none'"><title>cokacremote / Connection Manager</title><link rel="stylesheet" href="./main.css"></head><body>
 <div class="shell">
-<header class="chrome">
+<header class="chrome" data-tauri-drag-region>
  <div class="brand-mark" aria-hidden="true"><svg width="23" height="23" viewBox="0 0 24 24" fill="none"><path d="M3 12h5l4-7 4 14 4-7h1" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/></svg></div>
  <div class="app-title">cokacremote <span>CONTROL DESK</span></div>
  <div class="chrome-divider"></div><span class="chrome-context" id="hostContext">Host / Remote MCP</span>
@@ -57,7 +57,7 @@
  <div class="bottom-line"><div><span class="footer-symbol"></span><span id="chatState" data-i18n="status.plugin">Check the MCP connection status in ChatGPT.</span></div><button class="text-action" id="openChat"><span data-i18n="status.openChat">Open ChatGPT</span> <svg viewBox="0 0 16 16"><path d="M5 11L11 5M5 5h6v6"/></svg></button></div>
  <div class="notice-bar" id="notice" data-i18n="status.footer" role="status" aria-live="polite">Closing this window does not stop the background service.</div>
  </main></div>
-</div><script type="module" src="./app.js"></script>
+</div><script type="module" src="./tauri-runtime.mjs"></script><script type="module" src="./app.js"></script>
 <div id="dependencyDialog" class="dependency-overlay" hidden>
  <section class="dependency-panel" role="dialog" aria-modal="true" aria-labelledby="dependencyHeading">
   <div class="dependency-heading">

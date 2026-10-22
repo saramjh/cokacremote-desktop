@@ -1,0 +1,173 @@
+name: macOS Tauri build and release
+
+on:
+  workflow_dispatch:
+    inputs:
+      publish:
+        type: boolean
+        description: Publish a clearly labeled pre-release after successful verification
+        required: true
+        default: false
+
+permissions:
+  contents: write
+
+jobs:
+  macos-arm64:
+    runs-on: macos-15
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-apple-darwin
+      - uses: swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri
+      - name: Install frontend dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Validate frontend and Mac controller
+        run: |
+          npm test
+          node --check platform/mac/status.mjs
+          node --check platform/mac/operate.mjs
+          node --check ui/app.js
+          node --check ui/tauri-runtime.mjs
+          bash -n bootstrap/macos.sh
+      - name: Prepare native icon
+        run: |
+          mkdir -p src-tauri/icons
+          cp assets/app-icon.icns src-tauri/icons/icon.icns
+          sips -z 32 32 assets/app-icon.png --out src-tauri/icons/32x32.png
+      - name: Resolve signing and notarization eligibility
+        id: mode
+        env:
+          CERT: ${{ secrets.APPLE_CERTIFICATE }}
+          CERT_PASS: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+          CERT_ID: ${{ secrets.APPLE_SIGNING_IDENTITY }}
+          KEYCHAIN_PASS: ${{ secrets.KEYCHAIN_PASSWORD }}
+          API_ISSUER: ${{ secrets.APPLE_API_ISSUER }}
+          API_KEY: ${{ secrets.APPLE_API_KEY }}
+          API_PRIVATE_KEY: ${{ secrets.APPLE_API_PRIVATE_KEY }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          values=("$CERT" "$CERT_PASS" "$CERT_ID" "$KEYCHAIN_PASS" "$API_ISSUER" "$API_KEY" "$API_PRIVATE_KEY")
+          present=0
+          for value in "${values[@]}"; do
+            if [[ -n "$value" ]]; then present=$((present + 1)); fi
+          done
+          if [[ "$present" -eq 0 ]]; then
+            echo 'mode=adhoc' >> "$GITHUB_OUTPUT"
+            echo 'APPLE_NOTARIZATION=NOT_CONFIGURED' >> "$GITHUB_STEP_SUMMARY"
+            echo 'Developer ID / notary credentials not configured; test-only, ad-hoc signed build.' >> "$GITHUB_STEP_SUMMARY"
+          elif [[ "$present" -eq 7 ]]; then
+            echo 'mode=notarize' >> "$GITHUB_OUTPUT"
+            echo 'APPLE_NOTARIZATION=ENABLED' >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "::error::Incomplete Apple signing/notarization configuration; refusing to publish a misleading binary."
+            exit 1
+          fi
+      - name: Import Developer ID certificate
+        if: ${{ steps.mode.outputs.mode == 'notarize' }}
+        env:
+          APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
+          APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          KEYCHAIN="$RUNNER_TEMP/coka-signing.keychain-db"
+          CERT_FILE="$RUNNER_TEMP/coka-developer-id.p12"
+          printf '%s' "$APPLE_CERTIFICATE" | base64 --decode > "$CERT_FILE"
+          chmod 600 "$CERT_FILE"
+          security create-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN"
+          security default-keychain -s "$KEYCHAIN"
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN"
+          security set-keychain-settings -t 3600 -u "$KEYCHAIN"
+          security import "$CERT_FILE" -k "$KEYCHAIN" -P "$APPLE_CERTIFICATE_PASSWORD" -T /usr/bin/codesign
+          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$KEYCHAIN_PASSWORD" "$KEYCHAIN"
+          security find-identity -v -p codesigning "$KEYCHAIN" | grep -q 'Developer ID Application'
+          rm -f "$CERT_FILE"
+      - name: Build Tauri Apple Silicon bundle
+        env:
+          SIGN_MODE: ${{ steps.mode.outputs.mode }}
+          APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
+          APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+          APPLE_SIGNING_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY }}
+          APPLE_API_ISSUER: ${{ secrets.APPLE_API_ISSUER }}
+          APPLE_API_KEY: ${{ secrets.APPLE_API_KEY }}
+          APPLE_API_PRIVATE_KEY: ${{ secrets.APPLE_API_PRIVATE_KEY }}
+        run: |
+          set -euo pipefail
+          if [[ "$SIGN_MODE" == "notarize" ]]; then
+            KEY="$RUNNER_TEMP/apple-notary-key.p8"
+            printf '%s' "$APPLE_API_PRIVATE_KEY" > "$KEY"
+            chmod 600 "$KEY"
+            export APPLE_API_KEY_PATH="$KEY"
+            unset APPLE_API_PRIVATE_KEY
+          else
+            export APPLE_SIGNING_IDENTITY="-"
+            unset APPLE_CERTIFICATE APPLE_CERTIFICATE_PASSWORD KEYCHAIN_PASSWORD APPLE_API_ISSUER APPLE_API_KEY APPLE_API_PRIVATE_KEY
+          fi
+          npm run build:tauri -- --target aarch64-apple-darwin --bundles app,dmg
+      - name: Verify bundle and notarization claims
+        id: verify
+        env:
+          SIGN_MODE: ${{ steps.mode.outputs.mode }}
+        run: |
+          set -euo pipefail
+          BASE="src-tauri/target/aarch64-apple-darwin/release/bundle"
+          APP="$BASE/macos/cokacremote Manager.app"
+          DMG=$(find "$BASE/dmg" -maxdepth 1 -name '*.dmg' -type f | head -1)
+          test -d "$APP"
+          test -f "$DMG"
+          codesign --verify --deep --strict "$APP"
+          file "$APP/Contents/MacOS/cokacremote-manager"
+          if [[ "$SIGN_MODE" == "notarize" ]]; then
+            xcrun stapler validate "$APP"
+            xcrun stapler validate "$DMG"
+            spctl -a -t exec -vv "$APP"
+            suffix=""
+          else
+            suffix="-UNNOTARIZED"
+          fi
+          mkdir -p release-out
+          ZIP="cokacremote-manager-macos-arm64-v0.4.0-rc.1${suffix}.zip"
+          DISK="cokacremote-manager-macos-arm64-v0.4.0-rc.1${suffix}.dmg"
+          ditto -c -k --sequesterRsrc --keepParent "$APP" "release-out/$ZIP"
+          cp "$DMG" "release-out/$DISK"
+          (cd release-out && shasum -a 256 "$ZIP" "$DISK" > SHA256SUMS.txt)
+          echo "notarized=$([[ "$SIGN_MODE" == "notarize" ]] && echo true || echo false)" >> "$GITHUB_OUTPUT"
+          echo "App: $(du -sh "$APP" | cut -f1), ZIP: $(du -sh "release-out/$ZIP" | cut -f1)" >> "$GITHUB_STEP_SUMMARY"
+          echo "Notarization: $SIGN_MODE" >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: cokacremote-tauri-macos-arm64-v0.4.0-rc.1
+          path: release-out/*
+          retention-days: 14
+          if-no-files-found: error
+      - name: Publish GitHub pre-release
+        if: ${{ inputs.publish }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SIGN_MODE: ${{ steps.mode.outputs.mode }}
+        run: |
+          set -euo pipefail
+          TAG="v0.4.0-rc.1"
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            echo "::error::The release tag already exists. Refusing to overwrite a previously published binary."
+            exit 1
+          fi
+          if [[ "$SIGN_MODE" == "notarize" ]]; then
+            SIGN_NOTE="Developer ID signed and Apple-notarized. Stapler and Gatekeeper verification passed."
+          else
+            SIGN_NOTE="UNNOTARIZED developer preview. Ad-hoc signature only. macOS Gatekeeper may block this Internet-downloaded app. Do not disable Gatekeeper globally. A paid Apple Developer membership, Developer ID certificate and App Store Connect notary credentials are required for public trusted distribution."
+          fi
+          printf 'Tauri Apple Silicon desktop pre-release.\n\n%s\n\nThe upstream MCP server, Node.js and cloudflared are not bundled. The manager detects missing dependencies and asks permission before installing. Review installed tools and OAuth permissions before enabling ChatGPT MCP.\n\nSee docs/MACOS_SECURITY.md and docs/CHATGPT_SETUP.md.\n' "$SIGN_NOTE" > "$RUNNER_TEMP/notes.txt"
+          gh release create "$TAG" release-out/* --target "$GITHUB_SHA" --title "v0.4.0-rc.1 · Tauri macOS arm64" --prerelease --notes-file "$RUNNER_TEMP/notes.txt"

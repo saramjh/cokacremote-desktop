@@ -2,7 +2,7 @@
 
 > A local-first operator console for [cokacremote](https://github.com/kstost/cokacremote), OAuth, and Cloudflare Quick Tunnel. The **manager** helps you maintain a visible, authenticated MCP connection; the actual tools run on your own computer.
 
-**Start here:** [Connect to ChatGPT](docs/CHATGPT_SETUP.md) · [Interactive showcase](showcase/index.html) · [Dependency preparation](docs/DEPENDENCIES.md) · [Indicator status contract](docs/STATUS_MODEL.md) · [macOS security and notarization](docs/MACOS_SECURITY.md)
+**macOS Tauri v0.4.0-rc.1:** [build, Apple signing, notarization and test-release workflow](docs/TAURI_RELEASE.md). Until Developer ID and App Store Connect credentials are configured, GitHub builds are explicitly **UNNOTARIZED test packages**, not trusted distribution. The previous `v0.3.0` release is Electron-based.\n\n**Start here:** [Connect to ChatGPT](docs/CHATGPT_SETUP.md) · [Interactive showcase](showcase/index.html) · [Dependency preparation](docs/DEPENDENCIES.md) · [Indicator status contract](docs/STATUS_MODEL.md) · [macOS security and notarization](docs/MACOS_SECURITY.md)
 
 ### First-run workflow
 
