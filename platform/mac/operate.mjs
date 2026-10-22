@@ -5,6 +5,8 @@ import {homedir} from 'node:os';
 import {getStatus} from './status.mjs';
 import {decide} from '../../core/reconcile.mjs';
 const home=homedir(),state=join(home,'.cokacremote'),repo=join(home,'MCPWorkspace','cokacremote');
+// Finder does not inherit Homebrew's shell PATH.
+process.env.PATH=['/opt/homebrew/bin','/usr/local/bin',process.env.PATH||'/usr/bin:/bin:/usr/sbin:/sbin'].join(':');
 const label='io.github.cokacremote.desktop';
 const launchPath=join(home,'Library','LaunchAgents',label+'.plist');
 const agentRoot=join(home,'.local','share','cokacremote-manager');
