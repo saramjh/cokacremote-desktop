@@ -9,7 +9,7 @@ const label='io.github.cokacremote.desktop';
 const launchPath=join(home,'Library','LaunchAgents',label+'.plist');
 const agentRoot=join(home,'.local','share','cokacremote-manager');
 const q=s=>s.replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;');
-const sh=(cmd,args,timeout=90000)=>execFileSync(cmd,args,{encoding:'utf8',timeout,stdio:['ignore','pipe','pipe']});
+const sh=(cmd,args,timeout=90000,cwd=home)=>execFileSync(cmd,args,{encoding:'utf8',timeout,cwd,stdio:['ignore','pipe','pipe']});
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 const detached=(command,args,env={})=>{
  const out=openSync(join(state,'manager-worker.log'),'a',0o600);
@@ -47,8 +47,8 @@ function installCore(){
  mkdirSync(join(home,'MCPWorkspace'),{recursive:true});
  if(existsSync(repo))throw Error('An unexpected existing cokacremote folder needs review.');
  sh('/usr/bin/git',['clone','--depth','1','https://github.com/kstost/cokacremote.git',repo],120000);
- sh('/usr/bin/env',['npm','ci','--no-fund'],120000);
- sh('/usr/bin/env',['npm','run','build'],120000);
+ sh('/usr/bin/env',['npm','ci','--no-fund'],120000,repo);
+ sh('/usr/bin/env',['npm','run','build'],120000,repo);
 }
 const finish=async()=>getStatus(true);
 export async function operate(action,{supervisor=false}={}){
