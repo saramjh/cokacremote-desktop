@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="theme-color" content="#13262e"/>
+  <meta name="description" content="cokacremote Desktop Manager connects your computer to ChatGPT through an authenticated MCP server, with a visible, operator-controlled connection lifecycle."/>
+  <meta property="og:title" content="cokacremote — The connection is yours."/>
+  <meta property="og:description" content="A visual operator console for your own MCP server, OAuth approval, and secure tunnel."/>
+  <title>cokacremote — Desktop connection manager</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="./styles.css"/>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="site-header">
+  <a href="#top" class="brand" aria-label="cokacremote, back to top">
+    <svg viewBox="0 0 48 48" width="37" height="37" fill="none" aria-hidden="true"><path d="M36 12A17 17 0 1 0 36 36" stroke="currentColor" stroke-width="5" stroke-linecap="round"/><path d="M25 24h16" stroke="#65d4c4" stroke-width="5" stroke-linecap="round"/></svg>
+    <span>cokacremote <small>/ desktop</small></span>
+  </a>
+  <nav aria-label="Primary navigation"><a href="#how">How it works</a><a href="#setup">Set up</a><a href="#security">Security</a></nav>
+  <a class="header-github" href="https://github.com/saramjh/cokacremote-desktop" target="_blank" rel="noopener noreferrer">Source <svg viewBox="0 0 18 18" aria-hidden="true"><path d="M4 14 14 4M5 4h9v9"/></svg></a>
+</header>
+<main id="main">
+<section class="hero" id="top">
+  <div class="hero-grid">
+    <div class="hero-copy">
+      <div class="product-line"><span class="signal-led" aria-hidden="true"></span> Own the connection. Control the handoff.</div>
+      <h1>From your computer.<br/><span>Into your workflow.</span></h1>
+      <p class="hero-description">Keep the tools on your own machine. Make them available to ChatGPT through an authenticated MCP connection—and see exactly what is running.</p>
+      <div class="hero-actions">
+        <a class="button button-bright" href="https://github.com/saramjh/cokacremote-desktop/releases" target="_blank" rel="noopener noreferrer">View releases <span aria-hidden="true">↗</span></a>
+        <a class="button button-quiet" href="#how">Explore the connection <span aria-hidden="true">↓</span></a>
+      </div>
+      <p class="availability">Windows & macOS · Seven interface languages · Local-first operation</p>
+    </div>
+    <div class="signal-stage" aria-label="Animated illustration showing a local computer, a tunnel, and ChatGPT connected by an authenticated path">
+      <div class="stage-top"><span>Connection study</span><span class="stage-mode" id="stageMode">Demonstration / not a live connection</span></div>
+      <svg class="signal-drawing" viewBox="0 0 700 310" role="img" aria-labelledby="signalTitle signalDesc">
+        <title id="signalTitle">The connection route</title>
+        <desc id="signalDesc">Your computer communicates through an authenticated secure tunnel to a ChatGPT MCP connection.</desc>
+        <defs><pattern id="mesh" width="24" height="24" patternUnits="userSpaceOnUse"><path d="M24 0H0V24" fill="none" stroke="#365057" stroke-opacity=".45" stroke-width=".6"/></pattern><linearGradient id="pathGradient" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#65d4c4"/><stop offset=".5" stop-color="#b4e7e0"/><stop offset="1" stop-color="#65d4c4"/></linearGradient></defs>
+        <rect width="700" height="310" fill="url(#mesh)"/>
+        <path class="signal-line" d="M120 151 C240 151 239 102 352 102 S490 151 583 151" fill="none" stroke="#385258" stroke-width="4" stroke-linecap="round"/>
+        <path id="signalTrack" d="M120 151 C240 151 239 102 352 102 S490 151 583 151" fill="none" stroke="url(#pathGradient)" stroke-width="3.2" stroke-linecap="round" stroke-dasharray="7 10" opacity=".78"/>
+        <g class="node node-local"><rect x="42" y="99" width="154" height="103" rx="8" fill="#183842" stroke="#72b8ac" stroke-opacity=".72"/><rect x="64" y="120" width="108" height="55" rx="3" fill="#102b33" stroke="#40646c"/><path d="M76 147h30m-30 12h50" stroke="#65d4c4" stroke-width="3" stroke-linecap="round"/><path d="M106 190h25" stroke="#8bb2b1" stroke-width="3" stroke-linecap="round"/></g>
+        <g class="node node-tunnel"><circle cx="352" cy="102" r="52" fill="#1d4049" stroke="#65d4c4" stroke-opacity=".8" stroke-width="1.5"/><circle cx="352" cy="102" r="39" fill="none" stroke="#65d4c4" stroke-dasharray="2 7" stroke-opacity=".7"/><path d="M338 98v-10a14 14 0 0 1 28 0v10m-27 0h26v23h-26z" fill="none" stroke="#c8efe9" stroke-width="3" stroke-linejoin="round"/><circle cx="352" cy="110" r="2.7" fill="#65d4c4"/></g>
+        <g class="node node-chat"><rect x="535" y="100" width="126" height="102" rx="8" fill="#183842" stroke="#72b8ac" stroke-opacity=".72"/><path d="M559 132h78m-78 15h56m-56 15h42" stroke="#aedbd3" stroke-width="4" stroke-linecap="round"/><path d="M560 180h24" stroke="#65d4c4" stroke-width="4" stroke-linecap="round"/></g>
+        <circle id="signalTokenHalo" cx="120" cy="151" r="14" fill="#65d4c4" opacity=".15"/><circle id="signalToken" cx="120" cy="151" r="6" fill="#c9faf0"/>
+        <g fill="#a7cbc6" font-size="12" font-family="DM Mono, monospace" text-anchor="middle"><text x="119" y="232">YOUR MACHINE</text><text x="352" y="178">OAUTH + TUNNEL</text><text x="597" y="232">CHATGPT</text></g>
+        <path d="M43 269h615" stroke="#486269" stroke-width="1"/><text x="44" y="288" fill="#88a6a5" font-family="DM Mono, monospace" font-size="11">NO SHARED CREDENTIALS IN THE DEMO</text><text x="654" y="288" text-anchor="end" fill="#88a6a5" font-family="DM Mono, monospace" font-size="11">MCP / HTTPS</text>
+      </svg>
+      <div class="stage-controls"><span class="stage-caption" id="stageCaption">01 — Tools stay on your own computer.</span><button type="button" id="replayMotion" class="motion-button" aria-label="Replay connection animation"><svg viewBox="0 0 18 18" aria-hidden="true"><path d="M14 7A5.5 5.5 0 1 0 14.4 11M14 3v5H9"/></svg> Replay</button></div>
+    </div>
+  </div>
+  <div class="hero-footer"><span>Not a cloud workspace. A controlled bridge.</span><a href="#setup">Start with your machine <span aria-hidden="true">↓</span></a></div>
+</section>
+
+<section class="intro-strip" aria-label="Key capabilities"><p>Everything you need to operate the connection, <strong>nothing that quietly takes it over.</strong></p><div class="intro-track"><span>Inspect</span><span class="track-dot"></span><span>Approve</span><span class="track-dot"></span><span>Connect</span><span class="track-dot"></span><span>Recover</span></div></section>
+
+<section id="how" class="section section-how">
+  <div class="section-heading"><div><p class="micro-label">Connection anatomy</p><h2>Three systems.<br/>One visible route.</h2></div><p>Your computer does the work. The tunnel makes your MCP endpoint reachable. ChatGPT connects only after your authorization.</p></div>
+  <div class="anatomy">
+    <div class="anatomy-rail" aria-hidden="true"><span></span><span></span><span></span></div>
+    <article><div class="anatomy-index">01</div><h3>Your machine</h3><p>The upstream cokacremote server runs locally. The manager checks its health, PID, version and ownership before making changes.</p><span class="chip">Local execution</span></article>
+    <article><div class="anatomy-index">02</div><h3>Authenticated tunnel</h3><p>cloudflared exposes a temporary HTTPS endpoint. The existing route is kept when healthy; new URLs require a connector check.</p><span class="chip">OAuth approval</span></article>
+    <article><div class="anatomy-index">03</div><h3>ChatGPT</h3><p>Register the MCP endpoint in ChatGPT's Plugins area, review permissions and authorize it yourself. The manager does not control your ChatGPT account.</p><span class="chip">You authorize</span></article>
+  </div>
+</section>
+
+<section id="setup" class="section section-setup">
+  <div class="section-heading"><div><p class="micro-label">First-run experience</p><h2>Prepare only what's missing.</h2></div><p>No bundled toolchain. Inspect the host, request permission for each absent dependency, install from trusted sources, then verify.</p></div>
+  <div class="setup-grid">
+    <div class="setup-steps" role="tablist" aria-label="Setup walkthrough">
+      <button type="button" class="step is-active" role="tab" id="tab-inspect" aria-controls="panel-preview" aria-selected="true" data-scene="inspect"><span class="step-count">01</span><span><strong>Inspect this device</strong><small>Existing components first</small></span><span class="step-arrow" aria-hidden="true">↗</span></button>
+      <button type="button" class="step" role="tab" id="tab-consent" aria-controls="panel-preview" aria-selected="false" data-scene="consent"><span class="step-count">02</span><span><strong>Approve missing tools</strong><small>Explicit, per-dependency consent</small></span><span class="step-arrow" aria-hidden="true">↗</span></button>
+      <button type="button" class="step" role="tab" id="tab-connect" aria-controls="panel-preview" aria-selected="false" data-scene="connect"><span class="step-count">03</span><span><strong>Connect to ChatGPT</strong><small>Copy endpoint. Authorize yourself.</small></span><span class="step-arrow" aria-hidden="true">↗</span></button>
+    </div>
+    <div id="panel-preview" class="setup-preview" role="tabpanel" aria-labelledby="tab-inspect">
+      <div class="preview-chrome"><div class="preview-brand"><span class="mini-logo"></span>cokacremote manager</div><div class="preview-host">Illustrative UI <span class="preview-pulse" aria-hidden="true"></span></div></div>
+      <div class="preview-content" aria-live="polite">
+        <p class="preview-breadcrumb" id="previewEyebrow">System assessment / 01</p>
+        <h3 id="previewTitle">Your existing tools come first.</h3>
+        <p id="previewDescription">We inspect components before proposing any downloads.</p>
+        <div id="previewRows" class="preview-rows">
+          <div><span class="mini-status"></span> Node.js <small>Detected</small></div>
+          <div><span class="mini-status"></span> cloudflared <small>Detected</small></div>
+          <div><span class="mini-status amber"></span> cokacremote <small>Needs review</small></div>
+        </div>
+        <div class="preview-note" id="previewNote">This is an interactive product illustration; it does not scan your device.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section section-guide">
+  <div class="section-heading"><div><p class="micro-label">ChatGPT setup</p><h2>One human approval.<br/>A visible connection.</h2></div><p>After the MCP service is healthy, registration happens inside your own ChatGPT account—not through an automated browser action.</p></div>
+  <div class="guide-layout">
+    <div class="guide-list">
+      <div><span>1</span><p>In the manager, verify the server, Cloudflare endpoint and OAuth status. Copy the <strong>HTTPS MCP endpoint</strong>.</p></div>
+      <div><span>2</span><p>On ChatGPT web, open <strong>Plugins</strong> and add a custom MCP server if your account or workspace permits it.</p></div>
+      <div><span>3</span><p>Enter the endpoint. Review available tools and permissions, then complete OAuth approval in the connection flow.</p></div>
+      <div><span>4</span><p>Test a low-risk read-only action first. If the Quick Tunnel hostname changes, update the connection.</p></div>
+    </div>
+    <div class="code-window"><div class="code-head"><span>Connection details / example</span><span class="code-demo">EXAMPLE ONLY</span></div><div class="code-body"><p class="code-comment"># From the manager</p><p><span class="code-key">MCP endpoint</span></p><pre>https://YOUR-SUBDOMAIN.trycloudflare.com/mcp</pre><p class="code-comment"># ChatGPT handles your account approval</p><p class="code-sec"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M5 9V6a5 5 0 0 1 10 0v3M4 9h12v9H4z"/></svg> Approval key remains on your machine</p></div><a href="https://help.openai.com/en/articles/12584461-connecting-custom-mcp-servers-in-chatgpt" target="_blank" rel="noopener noreferrer" class="code-footer">Official ChatGPT connection instructions <span aria-hidden="true">↗</span></a></div>
+  </div>
+</section>
+
+<section id="security" class="section section-trust">
+  <div class="trust-layout">
+    <div><p class="micro-label">Trust boundary</p><h2>Visibility is a security feature.</h2><p class="trust-copy">This manager is designed for a powerful local MCP service. It should fail closed when a process owner is unknown, an authorization check fails, or an external operation's result is uncertain.</p></div>
+    <div class="trust-lines">
+      <div><span class="trust-icon">↳</span><div><h3>No silent installation</h3><p>Missing dependencies require your explicit approval. Existing healthy tools are reused.</p></div></div>
+      <div><span class="trust-icon">⌁</span><div><h3>No guessed connection state</h3><p>Local health does not prove your ChatGPT plugin is connected. Check both ends.</p></div></div>
+      <div><span class="trust-icon">⊘</span><div><h3>No security shortcuts</h3><p>macOS notarization and signed distribution matter. Never disable Gatekeeper to install software.</p></div></div>
+    </div>
+  </div>
+</section>
+<section class="closing"><p>Control the machine. Understand the route.</p><h2>The connection is yours.</h2><div><a href="https://github.com/saramjh/cokacremote-desktop" class="button button-bright" target="_blank" rel="noopener noreferrer">Explore the repository <span aria-hidden="true">↗</span></a><a href="https://github.com/saramjh/cokacremote-desktop#readme" class="button button-quiet">Read setup notes <span aria-hidden="true">↗</span></a></div></section>
+</main>
+<footer><span>cokacremote / desktop</span><span>Independent operator console for <a href="https://github.com/kstost/cokacremote">kstost/cokacremote</a>.</span><a href="#top">Back to top ↑</a></footer>
+<script src="./motion.js" type="module"></script>
+</body>
+</html>
