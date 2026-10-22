@@ -2,7 +2,9 @@
 
 > A local-first operator console for [cokacremote](https://github.com/kstost/cokacremote), OAuth, and Cloudflare Quick Tunnel. The **manager** helps you maintain a visible, authenticated MCP connection; the actual tools run on your own computer.
 
-**macOS Tauri v0.4.0-rc.1:** [build, Apple signing, notarization and test-release workflow](docs/TAURI_RELEASE.md). Until Developer ID and App Store Connect credentials are configured, GitHub builds are explicitly **UNNOTARIZED test packages**, not trusted distribution. The previous `v0.3.0` release is Electron-based.\n\n**Start here:** [Connect to ChatGPT](docs/CHATGPT_SETUP.md) · [Interactive showcase](showcase/index.html) · [Dependency preparation](docs/DEPENDENCIES.md) · [Indicator status contract](docs/STATUS_MODEL.md) · [macOS security and notarization](docs/MACOS_SECURITY.md)
+**Choose your download:** [Windows v0.3.0 stable](https://github.com/saramjh/cokacremote-desktop/releases/tag/v0.3.0) · [macOS Apple Silicon v0.4.0-rc.2 preview](https://github.com/saramjh/cokacremote-desktop/releases/tag/v0.4.0-rc.2). **macOS is currently NOT Apple notarized.** Downloaded DMG/ZIP builds may be rejected by Gatekeeper. The source-install alternative requires free developer tools; it is not a one-click installer.
+
+**Start here:** [Choose an installer below](#downloads-and-installation) · [Connect to ChatGPT](docs/CHATGPT_SETUP.md) · [Interactive showcase](showcase/index.html) · [Dependency preparation](docs/DEPENDENCIES.md) · [Status indicators](docs/STATUS_MODEL.md) · [macOS security](docs/MACOS_SECURITY.md)
 
 ### First-run workflow
 
@@ -32,17 +34,37 @@ The same Windows/macOS application supports **English, Korean (한국어), Japan
 
 Localization packs live in `ui/locales/` and share a tested key/placeholder contract. Run `npm test` to verify all seven locales.
 
-## Downloads
+## Downloads and installation
 
-Download the **Windows ZIP** or **macOS Apple Silicon ZIP** from GitHub Releases. Both archives exclude existing user OAuth state and private credentials.
+**Please read before downloading:** The newest macOS release is an **UNNOTARIZED preview**, not a production-ready no-warning installer. You should not have to guess which file is safe to run. The Windows and macOS release versions currently differ.
+
+| Your computer | Which release | Installation level |
+|---|---|---|
+| Windows 10/11 | [v0.3.0 stable](https://github.com/saramjh/cokacremote-desktop/releases/tag/v0.3.0) | Extract ZIP and run INSTALL.cmd; SmartScreen may warn about an unsigned installer |
+| Mac with Apple Silicon (M1/M2/M3/M4) | [v0.4.0-rc.2 preview — SOURCE INSTALL](https://github.com/saramjh/cokacremote-desktop/releases/tag/v0.4.0-rc.2) | **Technical users:** requires free Node.js/npm, Rust and Xcode Command Line Tools; compiles the app locally |
+| Mac with Apple Silicon (downloaded app) | [v0.4.0-rc.2 preview — DMG/ZIP](https://github.com/saramjh/cokacremote-desktop/releases/tag/v0.4.0-rc.2) | **UNNOTARIZED:** Gatekeeper may block first launch; verify the download and use Apple's individual-app approval only if you trust it |
 
 ### Windows 10/11
 
-Unzip `cokacremote-manager-windows-v0.3.0.zip` and run `INSTALL.cmd`. Installer checks Node.js/cloudflared prerequisites, installs the desktop runtime, reuses the existing Windows Task Scheduler supervisor, opens the manager, and creates a desktop shortcut. It preserves a healthy existing MCP server and Quick Tunnel. Microsoft Defender/SmartScreen may request a trust decision for an unsigned script installer.
+Download the Windows ZIP from the [v0.3.0 release](https://github.com/saramjh/cokacremote-desktop/releases/tag/v0.3.0). Extract it and run INSTALL.cmd. This is a local management tool rather than a complete unattended fresh-machine bootstrap. It preserves healthy MCP servers and tunnels; Windows SmartScreen may still request a trust decision.
 
-### macOS Apple Silicon (M1/M2/M3/M4)
+### macOS Apple Silicon — free, locally built app
 
-Unzip `cokacremote-manager-macos-arm64-v0.3.0.zip` and open **cokacremote Manager.app**. This ad-hoc-signed app is **not Apple-notarized**, so macOS may require opening it from Finder using Open Anyway. It reuses an already running local MCP/tunnel; initial setup requires Node.js, Git, cloudflared and npm available on PATH. If dependencies are absent, the manager reports a prerequisite error; it cannot silently install privileged system components.
+1. Install the free prerequisites from their official providers: [Node.js](https://nodejs.org/), [Rust](https://rustup.rs/), and Xcode Command Line Tools (run xcode-select --install). A Mac with these tools already installed can reuse them.
+2. Download **cokacremote-manager-macos-arm64-v0.4.0-rc.2-SOURCE-INSTALL.tar.gz** from the [v0.4.0-rc.2 release assets](https://github.com/saramjh/cokacremote-desktop/releases/tag/v0.4.0-rc.2). This archive contains **source code**, not a notarized app. Optionally check SOURCE-INSTALL-SHA256.txt.
+3. Open Terminal and run:
+
+   ~~~bash
+   cd ~/Downloads
+   tar -xzf cokacremote-manager-macos-arm64-v0.4.0-rc.2-SOURCE-INSTALL.tar.gz
+   bash cokacremote-manager-v0.4.0-rc.2/INSTALL-MAC.command
+   ~~~
+
+4. Review the prompt and explicitly enter y to build, test and install to ~/Applications. The installer refuses to overwrite an existing application. If cokacremote Manager is already installed, open the existing app rather than reinstalling.
+
+**Security:** A locally compiled app is ad-hoc signed, **not Apple notarized**. Switching downloaded binaries from DMG to ZIP, PKG, or APP does not remove Gatekeeper checks. Do not disable Gatekeeper globally or strip quarantine metadata. For a downloaded compiled app you personally trust, see [Apple's individual-app approval instructions](https://support.apple.com/guide/mac-help/open-a-mac-app-from-an-unidentified-developer-mh40617/mac).
+
+**Mac 신규 사용자 안내:** 위 SOURCE-INSTALL.tar.gz는 일반 앱 설치 파일이 아닌 **소스 빌드 패키지**입니다. Node.js, Rust, Xcode 명령줄 도구가 필요하며, 현재 원클릭 설치 또는 공증 완료 제품을 제공하지 않습니다.
 
 ### Connect to ChatGPT
 
