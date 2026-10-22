@@ -181,6 +181,12 @@ fn manager_open_chat() -> Result<(),String> {
     open::that("https://chatgpt.com/").map_err(|e|e.to_string())
 }
 #[tauri::command]
+fn manager_start_dragging(app: AppHandle) -> Result<(),String> {
+    app.get_webview_window("main").ok_or("Main window absent")?
+        .start_dragging().map_err(|e| e.to_string())
+}
+
+#[tauri::command]
 fn manager_minimize(app: AppHandle) -> Result<(),String> {
     app.get_webview_window("main").ok_or("Main window absent")?
         .minimize().map_err(|e|e.to_string())
@@ -197,7 +203,7 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![
             manager_status,manager_operate,manager_dependencies,manager_install_dependency,
             manager_reveal,manager_copy,manager_language,manager_set_language,
-            manager_open_chat,manager_minimize,manager_close
+            manager_open_chat,manager_start_dragging,manager_minimize,manager_close
         ])
         .run(tauri::generate_context!())
         .expect("Could not start cokacremote desktop manager");
