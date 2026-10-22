@@ -1,6 +1,6 @@
 #Requires -Version 5.1
 # GUI bootstrap for the EXISTING Windows cokacremote source and supervisor.
-param([switch]$ValidateOnly)
+param([switch]$ValidateOnly,[switch]$Silent)
 $ErrorActionPreference='Stop'
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
@@ -35,8 +35,8 @@ $bar=New-Object Windows.Forms.ProgressBar
 $bar.Style='Marquee';$bar.Location=New-Object Drawing.Point(25,158)
 $bar.Size=New-Object Drawing.Size(558,17)
 $form.Controls.Add($bar)
-$form.Show();[Windows.Forms.Application]::DoEvents()
-function Step([string]$text){$label.Text=$text;$form.Refresh();[Windows.Forms.Application]::DoEvents()}
+if(-not $Silent){$form.Show();[Windows.Forms.Application]::DoEvents()}
+function Step([string]$text){if($Silent){Write-Output $text;return};$label.Text=$text;$form.Refresh();[Windows.Forms.Application]::DoEvents()}
 function Msg([string]$text,[string]$caption='cokacremote installation'){
  [Windows.Forms.MessageBox]::Show($form,$text,$caption,[Windows.Forms.MessageBoxButtons]::OK,[Windows.Forms.MessageBoxIcon]::Information)|Out-Null
 }
@@ -55,7 +55,9 @@ function Run-Installer($binary,$arguments,$workdir){
   [Windows.Forms.Application]::DoEvents()
   $p.Refresh()
  }
+ $p.Refresh()
  if($p.ExitCode -ne 0){throw "Installation step failed ($($p.ExitCode)). Inspect $out and $err"}
+ if((Test-Path $out) -and (Select-String -LiteralPath $out -Pattern 'SETUP FAILED:' -Quiet)){throw ('Supervisor reported setup failure. See '+$out)}
 }
 function Ensure-Program($command,$wingetID){
  if(Get-Command $command -ErrorAction SilentlyContinue){return}
@@ -107,19 +109,33 @@ try{
   }
   if(-not(Test-Path -LiteralPath $electron)){throw 'Electron desktop runtime is not installed; setup cannot continue.'}
  }
- Step 'Starting existing Windows MCP/OAuth/Quick Tunnel supervisor...'
- $ctrl=Join-Path $destination 'deploy\windows\cokacremote.ps1'
+ Step 'Checking existing MCP and Quick Tunnel before making any changes...'
+ $existingReady=$false
  $ps=Join-Path $env:SystemRoot 'System32\WindowsPowerShell\v1.0\powershell.exe'
- Run-Installer $ps @('-NoLogo','-NoProfile','-NonInteractive','-ExecutionPolicy','Bypass','-File',('"'+$ctrl+'"'),'-Action','setup','-HideApprovalKey') $destination
+ $statusScript=Join-Path $destination 'deploy\windows\gui\status.ps1'
+ if(Test-Path $statusScript){
+  try {
+   $probeResult=& $ps -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -File $statusScript -VerifyRemote 2>$null | ConvertFrom-Json
+   $existingReady=($probeResult.ready -eq $true -and $probeResult.serverOwned -eq $true -and $probeResult.tunnelOwned -eq $true)
+  }catch{$existingReady=$false}
+ }
+ if($existingReady){
+  Step 'Existing MCP server, Quick Tunnel and OAuth verified. Preserving the connection.'
+ }else{
+  Step 'Starting existing Windows MCP/OAuth/Quick Tunnel supervisor...'
+  $ctrl=Join-Path $destination 'deploy\windows\cokacremote.ps1'
+  $ps=Join-Path $env:SystemRoot 'System32\WindowsPowerShell\v1.0\powershell.exe'
+  Run-Installer $ps @('-NoLogo','-NoProfile','-NonInteractive','-ExecutionPolicy','Bypass','-File',('"'+$ctrl+'"'),'-Action','setup','-HideApprovalKey') $destination
+ }
  Step 'Creating a one-click desktop shortcut...'
  try{ & (Join-Path $destination 'deploy\windows\gui\shortcut.ps1') | Out-Null }catch{ $label.Text='Shortcut not created; the GUI launcher in deploy\windows remains usable.' }
  Step 'Opening the connection manager...'
  $bar.Style='Continuous';$bar.Value=100
- Start-Process -FilePath wscript.exe -ArgumentList @('"' + (Join-Path $destination 'deploy\windows\MCP-MANAGER.vbs') + '"')
- Msg 'Installation and verified MCP startup completed. The GUI displays the live tunnel address, health and OAuth approval-key copy control. ChatGPT registration is the final manual step.'
+ if(-not $Silent){Start-Process -FilePath wscript.exe -ArgumentList @('"' + (Join-Path $destination 'deploy\windows\MCP-MANAGER.vbs') + '"')}
+ if($Silent){Write-Output 'INSTALLER_SUCCESS_EXISTING_OR_STARTED'}else{Msg 'Installation and verified MCP startup completed. The GUI displays the live tunnel address, health and OAuth approval-key copy control. ChatGPT registration is the final manual step.'}
 } catch {
  $bar.Style='Continuous';$bar.Value=0
- Msg ('Setup incomplete: '+$_.Exception.Message+[Environment]::NewLine+[Environment]::NewLine+'See '+$installLog+' for details.')
+ if($Silent){throw}else{Msg ('Setup incomplete: '+$_.Exception.Message+[Environment]::NewLine+[Environment]::NewLine+'See '+$installLog+' for details.')}
 }finally{
  $form.Close();$form.Dispose()
 }
