@@ -33,6 +33,7 @@ jobs:
       - name: Validate frontend and Mac controller
         run: |
           npm test
+          node -e 'const fs=require("node:fs"),v=require("./src-tauri/tauri.conf.json").version,p=require("./package.json"),l=require("./package-lock.json"),c=fs.readFileSync("src-tauri/Cargo.toml","utf8").match(/^version\s*=\s*"([^"]+)"/m)?.[1];if(new Set([v,p.version,l.version,l.packages[""].version,c]).size!==1)process.exit(1);console.log("Version:",v)'
           node --check platform/mac/status.mjs
           node --check platform/mac/operate.mjs
           node --check ui/app.js
@@ -50,6 +51,7 @@ jobs:
           CERT_PASS: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
           CERT_ID: ${{ secrets.APPLE_SIGNING_IDENTITY }}
           KEYCHAIN_PASS: ${{ secrets.KEYCHAIN_PASSWORD }}
+          PUBLISH: ${{ inputs.publish }}
           API_ISSUER: ${{ secrets.APPLE_API_ISSUER }}
           API_KEY: ${{ secrets.APPLE_API_KEY }}
           API_PRIVATE_KEY: ${{ secrets.APPLE_API_PRIVATE_KEY }}
@@ -62,6 +64,10 @@ jobs:
             if [[ -n "$value" ]]; then present=$((present + 1)); fi
           done
           if [[ "$present" -eq 0 ]]; then
+            if [[ "$PUBLISH" == "true" ]]; then
+              echo "::error::Public release requires notarization."
+              exit 1
+            fi
             echo 'mode=adhoc' >> "$GITHUB_OUTPUT"
             echo 'APPLE_NOTARIZATION=NOT_CONFIGURED' >> "$GITHUB_STEP_SUMMARY"
             echo 'Developer ID / notary credentials not configured; test-only, ad-hoc signed build.' >> "$GITHUB_STEP_SUMMARY"
@@ -130,6 +136,10 @@ jobs:
           codesign --verify --deep --strict "$APP"
           file "$APP/Contents/MacOS/cokacremote-manager"
           if [[ "$SIGN_MODE" == "notarize" ]]; then
+            SIGN_DETAILS="$(codesign --display --verbose=4 "$APP" 2>&1)"
+            [[ "$SIGN_DETAILS" == *"Authority=Developer ID Application"* ]] || { echo "::error::Invalid Developer ID signature"; exit 1; }
+            [[ "$SIGN_DETAILS" == *"runtime"* ]] || { echo "::error::Missing Hardened Runtime"; exit 1; }
+            [[ "$SIGN_DETAILS" == *"Timestamp="* ]] || { echo "::error::Missing secure timestamp"; exit 1; }
             xcrun stapler validate "$APP"
             xcrun stapler validate "$DMG"
             spctl -a -t exec -vv "$APP"
@@ -137,9 +147,10 @@ jobs:
           else
             suffix="-UNNOTARIZED"
           fi
+          RELEASE_VERSION="$(node -p 'require("./src-tauri/tauri.conf.json").version')"
           mkdir -p release-out
-          ZIP="cokacremote-manager-macos-arm64-v0.4.0-rc.1${suffix}.zip"
-          DISK="cokacremote-manager-macos-arm64-v0.4.0-rc.1${suffix}.dmg"
+          ZIP="cokacremote-manager-macos-arm64-v${RELEASE_VERSION}${suffix}.zip"
+          DISK="cokacremote-manager-macos-arm64-v${RELEASE_VERSION}${suffix}.dmg"
           ditto -c -k --sequesterRsrc --keepParent "$APP" "release-out/$ZIP"
           cp "$DMG" "release-out/$DISK"
           (cd release-out && shasum -a 256 "$ZIP" "$DISK" > SHA256SUMS.txt)
@@ -148,7 +159,7 @@ jobs:
           echo "Notarization: $SIGN_MODE" >> "$GITHUB_STEP_SUMMARY"
       - uses: actions/upload-artifact@v4
         with:
-          name: cokacremote-tauri-macos-arm64-v0.4.0-rc.1
+          name: cokacremote-tauri-macos-arm64
           path: release-out/*
           retention-days: 14
           if-no-files-found: error
@@ -159,7 +170,11 @@ jobs:
           SIGN_MODE: ${{ steps.mode.outputs.mode }}
         run: |
           set -euo pipefail
-          TAG="v0.4.0-rc.1"
+          TAG="v$(node -p 'require("./src-tauri/tauri.conf.json").version')"
+          if [[ "$SIGN_MODE" != "notarize" ]]; then
+            echo "::error::Refusing release without Apple notarization."
+            exit 1
+          fi
           if gh release view "$TAG" >/dev/null 2>&1; then
             echo "::error::The release tag already exists. Refusing to overwrite a previously published binary."
             exit 1
@@ -170,4 +185,4 @@ jobs:
             SIGN_NOTE="UNNOTARIZED developer preview. Ad-hoc signature only. macOS Gatekeeper may block this Internet-downloaded app. Do not disable Gatekeeper globally. A paid Apple Developer membership, Developer ID certificate and App Store Connect notary credentials are required for public trusted distribution."
           fi
           printf 'Tauri Apple Silicon desktop pre-release.\n\n%s\n\nThe upstream MCP server, Node.js and cloudflared are not bundled. The manager detects missing dependencies and asks permission before installing. Review installed tools and OAuth permissions before enabling ChatGPT MCP.\n\nSee docs/MACOS_SECURITY.md and docs/CHATGPT_SETUP.md.\n' "$SIGN_NOTE" > "$RUNNER_TEMP/notes.txt"
-          gh release create "$TAG" release-out/* --target "$GITHUB_SHA" --title "v0.4.0-rc.1 · Tauri macOS arm64" --prerelease --notes-file "$RUNNER_TEMP/notes.txt"
+          gh release create "$TAG" release-out/* --target "$GITHUB_SHA" --title "${TAG} · Tauri macOS arm64" --prerelease --notes-file "$RUNNER_TEMP/notes.txt"

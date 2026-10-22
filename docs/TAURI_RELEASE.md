@@ -1,4 +1,4 @@
-# Tauri macOS v0.4.0-rc.1: build, distribution and Apple notarization
+# Tauri macOS v0.4.0-rc.2: build, distribution and Apple notarization
 
 This source contains the **macOS Apple Silicon Tauri desktop bundle**. The app uses system WebKit instead of bundling Electron Chromium, and does not bundle the upstream MCP server or your OAuth credentials.
 
@@ -6,7 +6,7 @@ This source contains the **macOS Apple Silicon Tauri desktop bundle**. The app u
 
 [macOS GitHub Actions workflow](../.github/workflows/tauri-macos.yml) checks the shared seven-language UI, builds for `aarch64-apple-darwin`, creates a ZIP and DMG, validates the app signature and computes SHA-256 checksums.
 
-- If repository Apple signing/notary credentials are **completely absent**, the workflow can publish an **UNNOTARIZED developer preview only**. The ZIP/DMG filenames and release notes explicitly say UNNOTARIZED; macOS Gatekeeper may reject them. Never describe this as a trusted, notarized installer.
+- If repository Apple signing/notary credentials are **completely absent**, the workflow can upload an **UNNOTARIZED test artifact only with publishing disabled**. The ZIP/DMG filenames explicitly say UNNOTARIZED; macOS Gatekeeper may reject them. A public GitHub Release requires Apple notarization.
 - If the full Apple signing/notary configuration is available, Tauri signs with Developer ID Application, submits to Apple notarization, staples the ticket, and validates it before publishing. A failed validation blocks publishing.
 - If only part of the signing/notary configuration is present, the build **fails closed** rather than publishing confusing unsigned assets.
 
