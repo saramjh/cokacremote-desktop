@@ -31,7 +31,7 @@ fn node_path() -> Result<PathBuf, String> {
 
 // GUI never evaluates shell strings. Executable and script are selected from a fixed allowlist.
 // Timeouts terminate only this child controller, never an unrelated server or tunnel process.
-fn run(mut command: Command, deadline_ms: u64) -> Result<Output, String> {
+fn run_child(mut command: Command, deadline_ms: u64) -> Result<Output, String> {
     let mut child = command.stdin(Stdio::null()).stdout(Stdio::piped())
         .stderr(Stdio::piped()).spawn()
         .map_err(|e| format!("Unable to start controller: {e}"))?;
@@ -67,7 +67,7 @@ fn node_script(app: &AppHandle, script: &str, args: &[&str], timeout: u64) -> Re
     let file = resource(app, script)?;
     let mut command = Command::new(node_path()?);
     command.arg(file).args(args);
-    json_output(run(command, timeout)?)
+    json_output(run_child(command, timeout)?)
 }
 
 #[tauri::command]
@@ -91,7 +91,7 @@ fn bootstrap(app: &AppHandle, args: &[&str], timeout: u64) -> Result<Value, Stri
     let script = resource(app, "bootstrap/macos.sh")?;
     let mut command = Command::new("/bin/bash");
     command.arg(script).args(args);
-    json_output(run(command, timeout)?)
+    json_output(run_child(command, timeout)?)
 }
 
 #[tauri::command]
