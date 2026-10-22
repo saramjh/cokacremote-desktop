@@ -44,3 +44,27 @@ test('onboarding UI requires checkbox approval and uses dedicated IPC',()=>{
  assert.ok(main.includes("dependencies:inspect"));
  assert.ok(main.includes("dependencies:install"));
 });
+
+test('showcase routes a new visitor to the correct current platform release and real setup guides',()=>{
+ const html=read('showcase/index.html');
+ for(const expected of ['id="downloads"','href="#downloads"','v0.3.0','v0.4.0-rc.2',
+   'https://github.com/saramjh/cokacremote-desktop/releases/tag/v0.3.0',
+   'https://github.com/saramjh/cokacremote-desktop/releases/tag/v0.4.0-rc.2',
+   'SOURCE-INSTALL.tar.gz','UNNOTARIZED','INSTALL.cmd',
+   'not Apple-notarized','Gatekeeper','Not one-click','No tested Intel package',
+   'docs/GETTING_STARTED.ko.md','docs/GETTING_STARTED.md','docs/TROUBLESHOOTING.md']){
+  assert.ok(html.includes(expected),expected);
+ }
+ assert.ok(html.indexOf('id="downloads"')<html.indexOf('id="how"'));
+ assert.ok(html.includes('Demonstration / not a live connection'));
+ assert.ok(!/sk-[A-Za-z0-9]{15,}|ghp_[A-Za-z0-9]{15,}/.test(html));
+});
+test('showcase release facts match public README and bilingual guides',()=>{
+ const html=read('showcase/index.html'),english=read('docs/GETTING_STARTED.md');
+ const korean=read('docs/GETTING_STARTED.ko.md'),readme=read('README.md');
+ for(const code of ['v0.3.0','v0.4.0-rc.2']){
+  assert.ok(english.includes(code)&&korean.includes(code)&&html.includes(code),code);
+ }
+ assert.ok(readme.includes('https://saramjh.github.io/cokacremote-desktop/'));
+ assert.ok(!html.includes('View releases'));
+});

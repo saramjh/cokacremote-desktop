@@ -10,3 +10,50 @@ html,body{max-width:100%;overflow-x:clip}
  .signal-drawing{max-width:100%}
  .intro-strip p{font-size:14px}
 }
+
+/* Release choice and first-run wayfinding: intentionally sourced from published assets.
+   This is static content; no personal system probing or credential collection. */
+.downloads-section{background:#eff4f0;border-top:1px solid #c2d6d0;border-bottom:1px solid #b2cbc4}
+.downloads-inner{max-width:1450px;margin:auto;padding:clamp(78px,9vw,132px) clamp(22px,5.4vw,90px) clamp(78px,8vw,120px)}
+.downloads-lead{display:grid;grid-template-columns:1.05fr .8fr;gap:clamp(28px,6vw,110px);align-items:end;margin-bottom:47px}
+.downloads-lead .micro-label{margin-bottom:25px;color:#2c756c}
+.downloads-lead h2{font-size:clamp(38px,5.1vw,72px);font-weight:600;letter-spacing:-.07em;line-height:1.05;margin:0;max-width:760px}
+.downloads-lead h2 span{color:#43867b}
+.downloads-summary>p:first-child{margin:0 0 18px;max-width:480px;font-size:16px;line-height:1.7;color:#506d68}
+.downloads-notice{padding:16px 18px;border-left:3px solid #b17d4c;background:#f7e9d8;color:#5b3f24;font-size:13px;line-height:1.6;margin:0}
+.downloads-notice strong{display:block;margin-bottom:4px;font-weight:700}
+.platform-grid{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+.platform-card{display:flex;flex-direction:column;min-width:0;padding:clamp(24px,3.5vw,42px);border:1px solid #bfd1cb;background:#fff}
+.platform-card.mac-card{background:#193840;color:#e9f5f1;border-color:#365c59}
+.platform-meta{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;font:500 11px "DM Mono",monospace;letter-spacing:.018em}
+.platform-name{color:#286f64}
+.platform-version{background:#e2efea;padding:7px 10px;color:#25584f}
+.mac-card .platform-name{color:#8bdcca}
+.mac-card .platform-version{background:#31544f;color:#d6f5e9}
+.platform-card h3{font-size:clamp(27px,2.6vw,36px);line-height:1.17;letter-spacing:-.05em;font-weight:600;margin:34px 0 15px}
+.platform-card>p:not(.platform-foot){font-size:14px;color:#58716b;line-height:1.75;margin:0 0 22px;max-width:540px}
+.platform-card code{font-family:"DM Mono",monospace;background:#e3eeea;font-size:.9em;padding:3px 5px;overflow-wrap:anywhere}
+.platform-steps{display:grid;gap:12px;padding:21px 0;border-top:1px solid #d0dfd9;color:#315e55;font:500 12px "DM Mono",monospace;margin-bottom:22px}
+.platform-steps span{display:block}
+.mac-methods{display:grid;gap:13px;margin:1px 0 24px}
+.mac-method{border:1px solid #45625e;background:#24454c;padding:17px 19px}
+.mac-method strong{font-size:14px;letter-spacing:-.015em;display:flex;align-items:center;gap:10px;flex-wrap:wrap;overflow-wrap:anywhere}
+.mac-method strong span{font:400 10px "DM Mono",monospace;color:#afc9c4;border:1px solid #526f68;padding:3px 6px}
+.mac-method p{font-size:12px;line-height:1.7;color:#bdd4cd;margin:8px 0 0}
+.mac-method b{color:#fff}
+.platform-cta{min-height:51px;padding:14px 18px;display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:auto;font-size:13px;font-weight:700;background:#226c62;color:#fff}
+.platform-cta:hover{background:#308478}
+.platform-cta:focus-visible{outline:3px solid #6cbbac;outline-offset:4px}
+.mac-card .platform-cta{background:#83dcca;color:#15343b}
+.mac-card .platform-cta:hover{background:#b8f4e9}
+.platform-foot{font-size:11px;line-height:1.55;color:#718983;margin:17px 0 0!important}
+.mac-card .platform-foot{color:#a2bfba}
+.downloads-help{border-top:1px solid #c0d5cd;margin-top:42px;padding-top:27px;display:flex;align-items:center;justify-content:space-between;gap:28px}
+.downloads-help strong{font-size:16px}
+.downloads-help p{margin:5px 0 0;color:#637d75;font-size:12px}
+.help-links{display:flex;flex-wrap:wrap;gap:11px 20px}
+.help-links a{font-size:12px;color:#206d61;text-decoration:underline;text-underline-offset:4px;font-weight:600}
+.help-links a:hover{color:#10463e}
+@media(max-width:1000px){.downloads-lead{grid-template-columns:1fr;gap:23px}.downloads-summary{max-width:780px}.downloads-summary>p:first-child{max-width:780px}}
+@media(max-width:760px){.platform-grid{grid-template-columns:1fr}.downloads-help{align-items:flex-start;flex-direction:column}.downloads-lead{margin-bottom:33px}.platform-card h3{margin-top:25px}}
+@media(max-width:520px){.downloads-inner{padding:65px 22px 72px}.downloads-lead h2{font-size:clamp(37px,9vw,50px)}.platform-card{padding:24px 21px}.platform-meta{gap:8px}.platform-version{font-size:10px}.platform-card h3{font-size:29px}.downloads-help{margin-top:28px}.help-links{gap:12px 22px}.help-links a{min-height:32px}}
