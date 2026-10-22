@@ -1,13 +1,13 @@
 {
   "name": "cokacremote-desktop",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Cross-platform MCP connection manager for existing cokacremote services",
   "private": true,
   "main": "desktop/main.cjs",
   "scripts": {
     "test": "node --test test/*.test.mjs",
     "start": "electron .",
-    "package:mac": "bash scripts/build-macos-safe.sh arm64 0.2.1"
+    "package:mac": "bash scripts/build-macos-safe.sh arm64 0.3.0"
   },
   "devDependencies": {
     "electron": "44.9.1",

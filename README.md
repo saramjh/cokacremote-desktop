@@ -11,17 +11,23 @@
 
 Desktop management console for an existing [cokacremote](https://github.com/kstost/cokacremote) MCP server. It provides a status-oriented interface for OAuth 2.1, Cloudflare Quick Tunnel, health/ownership checks, connection details, and deliberate recovery on Windows and macOS.
 
+## Languages
+
+The same Windows/macOS application supports **English, Korean (한국어), Japanese (日本語), Simplified Chinese (简体中文), Spanish (Español), French (Français), and German (Deutsch)**. Select a language in the header; changes apply instantly without restarting the MCP server or Quick Tunnel. On first launch the interface follows the operating system's UI language (English fallback); the user's selection is saved in a local per-user preferences file. Language settings never modify OAuth credentials, tunnels, or server state.
+
+Localization packs live in `ui/locales/` and share a tested key/placeholder contract. Run `npm test` to verify all seven locales.
+
 ## Downloads
 
 Download the **Windows ZIP** or **macOS Apple Silicon ZIP** from GitHub Releases. Both archives exclude existing user OAuth state and private credentials.
 
 ### Windows 10/11
 
-Unzip `cokacremote-manager-windows-v0.2.1.zip` and run `INSTALL.cmd`. Installer checks Node.js/cloudflared prerequisites, installs the desktop runtime, reuses the existing Windows Task Scheduler supervisor, opens the manager, and creates a desktop shortcut. It preserves a healthy existing MCP server and Quick Tunnel. Microsoft Defender/SmartScreen may request a trust decision for an unsigned script installer.
+Unzip `cokacremote-manager-windows-v0.3.0.zip` and run `INSTALL.cmd`. Installer checks Node.js/cloudflared prerequisites, installs the desktop runtime, reuses the existing Windows Task Scheduler supervisor, opens the manager, and creates a desktop shortcut. It preserves a healthy existing MCP server and Quick Tunnel. Microsoft Defender/SmartScreen may request a trust decision for an unsigned script installer.
 
 ### macOS Apple Silicon (M1/M2/M3/M4)
 
-Unzip `cokacremote-manager-macos-arm64-v0.2.1.zip` and open **cokacremote Manager.app**. This ad-hoc-signed app is **not Apple-notarized**, so macOS may require opening it from Finder using Open Anyway. It reuses an already running local MCP/tunnel; initial setup requires Node.js, Git, cloudflared and npm available on PATH. If dependencies are absent, the manager reports a prerequisite error; it cannot silently install privileged system components.
+Unzip `cokacremote-manager-macos-arm64-v0.3.0.zip` and open **cokacremote Manager.app**. This ad-hoc-signed app is **not Apple-notarized**, so macOS may require opening it from Finder using Open Anyway. It reuses an already running local MCP/tunnel; initial setup requires Node.js, Git, cloudflared and npm available on PATH. If dependencies are absent, the manager reports a prerequisite error; it cannot silently install privileged system components.
 
 ### Connect to ChatGPT
 
@@ -50,7 +56,7 @@ Transient remote failure with running components: retain them and recheck rather
 
 Pure reconciliation tests cover 11 scenarios, but a full reboot and destructive live-fault matrix must be performed separately on a controlled environment. The manager does not infer ChatGPT-side plugin status from local checks.
 
-**Windows v0.2.1** uses the already verified Windows v0.2.0 runtime unchanged. The macOS v0.2.1 build includes platform-aware labels and Finder PATH handling.
+**Windows v0.3.0** includes a safe GUI upgrade path for existing installations. Both platform packages include the same seven-language interface.
 
 ## Build
 

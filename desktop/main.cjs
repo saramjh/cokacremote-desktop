@@ -2,7 +2,7 @@
 const{app,BrowserWindow,ipcMain,clipboard,shell,dialog}=require('electron');
 const{join,resolve}=require('node:path');
 const{spawn}=require('node:child_process');
-const{readFileSync,existsSync,mkdirSync,writeFileSync}=require('node:fs');
+const{readFileSync,existsSync,mkdirSync,writeFileSync,renameSync}=require('node:fs');
 const path=require('node:path');
 const {setTimeout:delay}=require('node:timers/promises');
 
@@ -15,7 +15,17 @@ const probe=join(scripts,'platform','windows','status.ps1');
 const keyfile=join(process.env.USERPROFILE||process.env.HOME||'', '.cokacremote','oauth-approval-key');
 const powershell=join(process.env.WINDIR||'C:\\Windows','System32','WindowsPowerShell','v1.0','powershell.exe');
 const allowed=new Set(['setup','restart','stop']);
+const languageCodes=new Set(['en','ko','ja','zh','es','fr','de']);
+function preferencesFile(){return join(app.getPath('userData'),'ui-preferences.json')}
+function savedLanguage(){try{const code=JSON.parse(readFileSync(preferencesFile(),'utf8')).language;return languageCodes.has(code)?code:null}catch{return null}}
+function saveLanguage(code){
+ if(!languageCodes.has(code))throw Error('Unsupported language');
+ const file=preferencesFile();mkdirSync(path.dirname(file),{recursive:true});
+ const temporary=file+'.'+process.pid+'.tmp';writeFileSync(temporary,JSON.stringify({schema:1,language:code})+'\n',{mode:0o600});renameSync(temporary,file);return {language:code};
+}
 const qa=process.argv.find(x=>x.startsWith('--qa-screenshot='));
+const qaLanguage=process.argv.find(x=>x.startsWith('--qa-language='))?.split('=')[1];
+const isQaLanguage=languageCodes.has(qaLanguage);
 let win,operating=false,latest=null,latestAt=0,pending=null;
 let policy;
 const runPS=(file,args=[],timeout=40000,onUpdate)=>{
@@ -78,6 +88,8 @@ function secureString(filename){
  return value;
 }
 function setupHandlers(){
+ ipcMain.handle('language:get',()=>({selected:isQaLanguage?qaLanguage:savedLanguage(),system:app.getLocale()}));
+ ipcMain.handle('language:set',(_event,code)=>isQaLanguage?({language:code}):saveLanguage(code));
  ipcMain.handle('status',async(_e,remote)=>query(remote));
  ipcMain.handle('operate',async(_e,name)=>action(name));
  ipcMain.handle('copy',async(_e,type)=>{
@@ -108,7 +120,7 @@ function createWindow(){
   win.webContents.once('did-finish-load',async()=>{
     await delay(3200);
     const output=resolve(qa.slice('--qa-screenshot='.length));
-    const qaStatus=await win.webContents.executeJavaScript("({notice:document.getElementById('notice')?.textContent,head:document.getElementById('headline')?.textContent,bridge:typeof window.mcpManager})");
+    const qaStatus=await win.webContents.executeJavaScript("({locale:document.documentElement.lang,language:document.getElementById('languageSelect')?.value,notice:document.getElementById('notice')?.textContent,head:document.getElementById('headline')?.textContent,bridge:typeof window.mcpManager,htmlOverflow:document.documentElement.scrollWidth>document.documentElement.clientWidth})");
     process.stdout.write('QA_STATUS '+JSON.stringify(qaStatus)+'\n');
     const screenshot=await win.webContents.capturePage();
     writeFileSync(output,screenshot.toPNG());
@@ -119,6 +131,6 @@ function createWindow(){
 if(!app.requestSingleInstanceLock())app.quit();
 else{
  app.on('second-instance',()=>{if(win){if(win.isMinimized())win.restore();win.focus()}});
- app.whenReady().then(()=>{app.setAppUserModelId('cokacremote.windows.manager');setupHandlers();createWindow()});
+ app.whenReady().then(()=>{app.setAppUserModelId('cokacremote.desktop.manager');setupHandlers();createWindow()});
  app.on('window-all-closed',()=>{if(process.platform!=='darwin')app.quit()});
 }

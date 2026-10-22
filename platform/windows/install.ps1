@@ -56,7 +56,10 @@ function Run-Installer($binary,$arguments,$workdir){
   $p.Refresh()
  }
  $p.Refresh()
- if($p.ExitCode -ne 0){throw "Installation step failed ($($p.ExitCode)). Inspect $out and $err"}
+ $p.WaitForExit()
+ $p.Refresh()
+ $code=$p.ExitCode
+ if($null -eq $code -or $code -ne 0){throw "Installation subprocess exited with status $code. Inspect $out and $err"}
  if((Test-Path $out) -and (Select-String -LiteralPath $out -Pattern 'SETUP FAILED:' -Quiet)){throw ('Supervisor reported setup failure. See '+$out)}
 }
 function Ensure-Program($command,$wingetID){
@@ -78,6 +81,26 @@ try{
  if(Test-Path -LiteralPath $destination){
   Step 'An existing installation was found. Preserving its files and credentials.'
   if(-not(Test-Path -LiteralPath (Join-Path $destination 'deploy\windows\MCP-MANAGER.vbs'))){throw "Existing installation is not this GUI version. Back it up and perform a controlled upgrade: $destination"}
+  # Upgrade only GUI source/resources. Never replace a running MCP server, scheduled task, OAuth state or tunnel.
+  $sourceUi=Join-Path $payload 'deploy\windows\manager-v2'
+  $targetUi=Join-Path $destination 'deploy\windows\manager-v2'
+  if(-not(Test-Path -LiteralPath (Join-Path $targetUi 'main.cjs'))){throw 'Existing desktop UI is not recognized; refusing an unsafe upgrade.'}
+  Step 'Updating the desktop interface and translations without restarting the MCP server...'
+  foreach($relative in @('ui','test')){
+   $sourceDir=Join-Path $sourceUi $relative
+   if(Test-Path $sourceDir){
+    Get-ChildItem -LiteralPath $sourceDir -Recurse -File | ForEach-Object {
+     $part=$_.FullName.Substring($sourceUi.Length).TrimStart([char]92)
+     $targetFile=Join-Path $targetUi $part
+     New-Item -ItemType Directory -Path (Split-Path $targetFile -Parent) -Force|Out-Null
+     Copy-Item -LiteralPath $_.FullName -Destination $targetFile -Force
+    }
+   }
+  }
+  foreach($relative in @('preload.cjs','main.cjs','package.json','package-lock.json')){
+   $src=Join-Path $sourceUi $relative
+   if(Test-Path $src){Copy-Item -LiteralPath $src -Destination (Join-Path $targetUi $relative) -Force}
+  }
  }else{
   $parent=Split-Path -Parent $destination
   New-Item -ItemType Directory -Path $parent -Force|Out-Null
@@ -110,17 +133,29 @@ try{
   if(-not(Test-Path -LiteralPath $electron)){throw 'Electron desktop runtime is not installed; setup cannot continue.'}
  }
  Step 'Checking existing MCP and Quick Tunnel before making any changes...'
- $existingReady=$false
+ $keepExisting=$false
+ $needsManualReview=$false
  $ps=Join-Path $env:SystemRoot 'System32\WindowsPowerShell\v1.0\powershell.exe'
  $statusScript=Join-Path $destination 'deploy\windows\gui\status.ps1'
  if(Test-Path $statusScript){
-  try {
-   $probeResult=& $ps -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -File $statusScript -VerifyRemote 2>$null | ConvertFrom-Json
-   $existingReady=($probeResult.ready -eq $true -and $probeResult.serverOwned -eq $true -and $probeResult.tunnelOwned -eq $true)
-  }catch{$existingReady=$false}
+  try{
+   $probeResult=& $ps -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -File $statusScript -VerifyRemote 2>$null|ConvertFrom-Json
+   if(($probeResult.serverAlive -and -not $probeResult.serverOwned) -or ($probeResult.tunnelAlive -and -not $probeResult.tunnelOwned)){
+    throw 'An unverified listener or tunnel is running. Refusing to replace it.'
+   }
+   $keepExisting=($probeResult.serverOwned -eq $true -or $probeResult.tunnelOwned -eq $true)
+   $needsManualReview=($keepExisting -and -not($probeResult.serverOwned -and $probeResult.tunnelOwned -and $probeResult.local -eq 'HEALTHY' -and $probeResult.public -eq 'HEALTHY' -and $probeResult.oauth -eq 'HEALTHY' -and $probeResult.authorization -eq 'AUTH_REQUIRED'))
+  }catch{
+   if($_.Exception.Message -like '*unverified listener*'){throw}
+   # A diagnostic failure is not permission to replace live processes.
+   $listener=Get-NetTCPConnection -LocalPort 3000 -State Listen -ErrorAction SilentlyContinue
+   if($listener){throw 'Cannot verify existing MCP listener. Installation paused; use manager diagnostics.'}
+   throw 'Cannot verify existing service state. Installation paused without modifying the tunnel.'
+  }
  }
- if($existingReady){
-  Step 'Existing MCP server, Quick Tunnel and OAuth verified. Preserving the connection.'
+ if($keepExisting){
+  if($needsManualReview){Step 'Existing managed processes detected. Preserving them; verify degraded state from the GUI.'}
+  else{Step 'Existing MCP server, Quick Tunnel and OAuth verified. Preserving the connection.'}
  }else{
   Step 'Starting existing Windows MCP/OAuth/Quick Tunnel supervisor...'
   $ctrl=Join-Path $destination 'deploy\windows\cokacremote.ps1'

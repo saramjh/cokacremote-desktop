@@ -1,59 +1,60 @@
-<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self'; script-src 'self'; img-src 'self' data:; connect-src 'none'; object-src 'none'; base-uri 'none'"><title>cokacremote / 연결 관리자</title><link rel="stylesheet" href="./main.css"></head><body>
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self'; script-src 'self'; img-src 'self' data:; connect-src 'none'; object-src 'none'; base-uri 'none'"><title>cokacremote / Connection Manager</title><link rel="stylesheet" href="./main.css"></head><body>
 <div class="shell">
 <header class="chrome">
  <div class="brand-mark" aria-hidden="true"><svg width="23" height="23" viewBox="0 0 24 24" fill="none"><path d="M3 12h5l4-7 4 14 4-7h1" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/></svg></div>
  <div class="app-title">cokacremote <span>CONTROL DESK</span></div>
  <div class="chrome-divider"></div><span class="chrome-context" id="hostContext">Host / Remote MCP</span>
  <div class="spacer"></div>
- <div class="chrome-current" id="heartbeat"><span class="pulse"></span> 상태 확인 중</div>
- <button class="chrome-button" id="minimize" title="창 최소화" aria-label="창 최소화"><svg viewBox="0 0 20 20"><path d="M4 10h12"/></svg></button>
- <button class="chrome-button danger" id="close" title="창 닫기" aria-label="창 닫기"><svg viewBox="0 0 20 20"><path d="M5 5l10 10M15 5L5 15"/></svg></button>
+ <div class="language-control"><label for="languageSelect" id="languageLabel" data-i18n="app.language">Language</label><div class="language-select-wrap"><select id="languageSelect" aria-labelledby="languageLabel"><option value="en">English</option><option value="ko">한국어</option><option value="ja">日本語</option><option value="zh">简体中文</option><option value="es">Español</option><option value="fr">Français</option><option value="de">Deutsch</option></select><svg aria-hidden="true" viewBox="0 0 16 16"><path d="M4 6l4 4 4-4"/></svg></div></div>
+ <div class="chrome-current" id="heartbeat"><span class="pulse"></span><span id="heartbeatLabel" data-i18n="status.assessing">Checking operational status</span></div>
+ <button class="chrome-button" id="minimize" data-i18n-title="app.minimize" data-i18n-aria="app.minimize" title="Minimize window" aria-label="Minimize window"><svg viewBox="0 0 20 20"><path d="M4 10h12"/></svg></button>
+ <button class="chrome-button danger" id="close" data-i18n-title="app.close" data-i18n-aria="app.close" title="Close window" aria-label="Close window"><svg viewBox="0 0 20 20"><path d="M5 5l10 10M15 5L5 15"/></svg></button>
 </header>
 <div class="body">
 <aside class="rail">
- <p class="rail-kicker">Connection control</p>
- <div class="rail-heading">원격 환경의<br>현재 상태</div>
- <div class="topology" role="group" aria-label="연결 구성도">
-  <div class="topology-row"><div class="symbol"><svg viewBox="0 0 32 32" fill="none"><rect x="5" y="8" width="22" height="16" rx="2.5"/><path d="M9 13h14M9 18h8"/></svg></div><div><b id="hostLabel">Local host</b><small>현재 컴퓨터</small></div><span class="top-status stable">LOCAL</span></div>
+ <p class="rail-kicker" data-i18n="rail.kicker">Connection control</p>
+ <div class="rail-heading" data-i18n="rail.heading">Remote environment at a glance</div>
+ <div class="topology" role="group" data-i18n-aria="rail.topology" aria-label="Connection diagram">
+  <div class="topology-row"><div class="symbol"><svg viewBox="0 0 32 32" fill="none"><rect x="5" y="8" width="22" height="16" rx="2.5"/><path d="M9 13h14M9 18h8"/></svg></div><div><b id="hostLabel">Local host</b><small data-i18n="rail.computer">This computer</small></div><span class="top-status stable">LOCAL</span></div>
   <div class="topology-join"><span class="join-dot"></span></div>
-  <div class="topology-row" id="mapServer"><div class="symbol"><svg viewBox="0 0 32 32" fill="none"><rect x="8" y="5" width="16" height="22" rx="2"/><path d="M12 11h8m-8 6h8M12 23h2"/></svg></div><div><b>MCP server</b><small>127.0.0.1:3000</small></div><span class="top-status" id="mapServerState">CHECK</span></div>
+  <div class="topology-row" id="mapServer"><div class="symbol"><svg viewBox="0 0 32 32" fill="none"><rect x="8" y="5" width="16" height="22" rx="2"/><path d="M12 11h8m-8 6h8M12 23h2"/></svg></div><div><b data-i18n="rail.server">MCP server</b><small>127.0.0.1:3000</small></div><span class="top-status" id="mapServerState">CHECK</span></div>
   <div class="topology-join"><span class="join-dot"></span></div>
   <div class="topology-row" id="mapTunnel"><div class="symbol"><svg viewBox="0 0 32 32" fill="none"><path d="M4 23c5-2 7-12 12-12s7 10 12 12M4 23h24M12 8l4-4 4 4"/></svg></div><div><b>Quick Tunnel</b><small>Cloudflare HTTPS</small></div><span class="top-status" id="mapTunnelState">CHECK</span></div>
   <div class="topology-join"><span class="join-dot"></span></div>
-  <div class="topology-row" id="mapOAuth"><div class="symbol"><svg viewBox="0 0 32 32" fill="none"><rect x="8" y="14" width="16" height="13" rx="2"/><path d="M12 14V9a4 4 0 018 0v5M16 20v3"/></svg></div><div><b>OAuth 2.1</b><small>연결 인증</small></div><span class="top-status" id="mapOAuthState">CHECK</span></div>
+  <div class="topology-row" id="mapOAuth"><div class="symbol"><svg viewBox="0 0 32 32" fill="none"><rect x="8" y="14" width="16" height="13" rx="2"/><path d="M12 14V9a4 4 0 018 0v5M16 20v3"/></svg></div><div><b>OAuth 2.1</b><small data-i18n="rail.oauthSub">Connection authentication</small></div><span class="top-status" id="mapOAuthState">CHECK</span></div>
  </div>
  <div class="rail-divider"></div>
- <p class="section-eyebrow">운영 정책</p>
- <p class="rail-note">확인된 정상 프로세스는 유지합니다. 재시작은 필요한 대상에만 적용하고, 소유자가 불명확한 프로세스는 종료하지 않습니다.</p>
- <div class="rail-foot"><svg viewBox="0 0 18 18"><path d="M9 2l6 2v5c0 4-2.8 6-6 7-3.2-1-6-3-6-7V4l6-2zM6.5 9l1.8 2 3.7-4"/></svg><span>인증정보 로컬 보관<br><em>자동 등록·강제 재접속 없음</em></span></div>
+ <p class="section-eyebrow" data-i18n="rail.policy">Operating policy</p>
+ <p class="rail-note" data-i18n="rail.policyBody">Preserve verified healthy processes. Repair only failed components; never stop a process with an unknown owner.</p>
+ <div class="rail-foot"><svg viewBox="0 0 18 18"><path d="M9 2l6 2v5c0 4-2.8 6-6 7-3.2-1-6-3-6-7V4l6-2zM6.5 9l1.8 2 3.7-4"/></svg><span><span data-i18n="rail.security">Credentials stay on this device</span><em data-i18n="rail.securitySub">No automatic registration or forced reconnect</em></span></div>
 </aside>
 <main class="workspace">
  <section class="status-heading">
-  <div class="heading-top"><span class="eyebrow">실시간 운영 진단</span><span class="refresh-time" id="lastChecked">마지막 점검 —</span></div>
-  <h1 id="headline">연결 상태를 확인하고 있습니다.</h1>
-  <p id="subline">서버·터널·인증 정보를 교차 확인합니다. 현재 사용 중인 연결은 변경하지 않습니다.</p>
+  <div class="heading-top"><span class="eyebrow" data-i18n="status.live">Live diagnostics</span><span class="refresh-time" id="lastChecked">Last checked —</span></div>
+  <h1 id="headline" data-i18n="status.checking">Checking connection status</h1>
+  <p id="subline" data-i18n="status.checkingDesc">Cross-checking server, tunnel, and authentication without changing existing connections.</p>
  </section>
  <section class="operation-banner" id="operationBanner" aria-live="polite">
   <div class="operation-mark" id="decisionMark"><svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 7"/></svg></div>
-  <div class="operation-summary"><div class="operation-title" id="decisionTitle">연결 검사 진행 중</div><div class="operation-copy" id="decisionText">복구 필요 여부를 판정하고 있습니다.</div></div>
+  <div class="operation-summary"><div class="operation-title" id="decisionTitle" data-i18n="status.checkingDecision">Assessing connection</div><div class="operation-copy" id="decisionText" data-i18n="status.checkingDecisionDesc">Determining whether recovery is needed.</div></div>
   <span class="decision-code" id="decisionCode">ASSESSING</span>
  </section>
- <div class="section-row"><h2>구성요소</h2><span class="section-caption">상태 · 프로세스 · 제어 주체</span></div>
+ <div class="section-row"><h2 data-i18n="status.components">Components</h2><span class="section-caption" data-i18n="status.componentsCaption">Status · process · ownership</span></div>
  <div class="services">
-  <div class="service-line"><div class="svc-indicator" id="serverDot"></div><div class="svc-main"><h3>MCP 서버</h3><p>로컬 Streamable HTTP · 요청 인증</p></div><div class="svc-meta"><strong id="serverValue">확인 중</strong><small id="serverPid">PID —</small></div></div>
-  <div class="service-line"><div class="svc-indicator" id="tunnelDot"></div><div class="svc-main"><h3>Cloudflare Quick Tunnel</h3><p>외부 HTTPS 경로 · 현재 주소 유지 우선</p></div><div class="svc-meta"><strong id="tunnelValue">확인 중</strong><small id="tunnelPid">PID —</small></div></div>
-  <div class="service-line"><div class="svc-indicator" id="authDot"></div><div class="svc-main"><h3>OAuth 승인 및 보호</h3><p>Issuer 일치 · 익명 요청 차단</p></div><div class="svc-meta"><strong id="authValue">확인 중</strong><small id="authSub">검증 미실시</small></div></div>
+  <div class="service-line"><div class="svc-indicator" id="serverDot"></div><div class="svc-main"><h3 data-i18n="status.server">MCP server</h3><p data-i18n="status.serverDesc">Local Streamable HTTP · request authentication</p></div><div class="svc-meta"><strong id="serverValue">Checking</strong><small id="serverPid">PID —</small></div></div>
+  <div class="service-line"><div class="svc-indicator" id="tunnelDot"></div><div class="svc-main"><h3 data-i18n="status.tunnel">Cloudflare Quick Tunnel</h3><p data-i18n="status.tunnelDesc">Public HTTPS path · preserve current address</p></div><div class="svc-meta"><strong id="tunnelValue">Checking</strong><small id="tunnelPid">PID —</small></div></div>
+  <div class="service-line"><div class="svc-indicator" id="authDot"></div><div class="svc-main"><h3 data-i18n="status.oauth">OAuth approval &amp; protection</h3><p data-i18n="status.oauthDesc">Issuer consistency · block anonymous requests</p></div><div class="svc-meta"><strong id="authValue">Checking</strong><small id="authSub">Not yet verified</small></div></div>
  </div>
- <div class="section-row tools-heading"><h2>현재 접속 정보</h2><span class="section-caption">ChatGPT 등록 시 사용</span></div>
+ <div class="section-row tools-heading"><h2 data-i18n="status.credentials">Connection details</h2><span class="section-caption" data-i18n="status.credentialsCaption">For registration in ChatGPT</span></div>
  <div class="connection-area">
-  <div class="entry"><label for="endpoint">공개 MCP 주소</label><div class="field-line"><input id="endpoint" spellcheck="false" readonly value="연결 상태 확인 중"><button class="field-action" id="copyUrl" title="MCP 주소 복사" aria-label="MCP 주소 복사"><svg viewBox="0 0 20 20"><rect x="7" y="6" width="10" height="11" rx="1.5"/><path d="M13 6V4H5a2 2 0 00-2 2v8h4"/></svg><span>복사</span></button></div></div>
-  <div class="entry"><label for="approvalKey">OAuth 승인 키</label><div class="field-line"><input id="approvalKey" type="password" spellcheck="false" readonly value="관리자 승인 시에만 표시"><button class="field-action subdued" id="revealKey" aria-label="승인 키 15초 표시">15초 보기</button><button class="field-action" id="copyKey" aria-label="OAuth 승인 키 복사"><svg viewBox="0 0 20 20"><rect x="7" y="6" width="10" height="11" rx="1.5"/><path d="M13 6V4H5a2 2 0 00-2 2v8h4"/></svg><span>복사</span></button></div><p class="field-helper">ChatGPT OAuth 승인 화면에 입력하세요. 채팅 메시지에는 붙여넣지 마세요.</p></div>
+  <div class="entry"><label for="endpoint" data-i18n="status.publicAddress">Public MCP address</label><div class="field-line"><input id="endpoint" spellcheck="false" readonly value="Checking connection"><button class="field-action" id="copyUrl" data-i18n-title="status.publicAddress" data-i18n-aria="status.publicAddress" title="Copy public MCP address" aria-label="Copy public MCP address"><svg viewBox="0 0 20 20"><rect x="7" y="6" width="10" height="11" rx="1.5"/><path d="M13 6V4H5a2 2 0 00-2 2v8h4"/></svg><span data-i18n="status.copy">Copy</span></button></div></div>
+  <div class="entry"><label for="approvalKey" data-i18n="status.approvalKey">OAuth approval key</label><div class="field-line"><input id="approvalKey" type="password" spellcheck="false" readonly value="Hidden until you choose to reveal it"><button class="field-action subdued" id="revealKey" data-i18n-aria="status.show15" aria-label="Show 15s" data-i18n="status.show15">Show 15s</button><button class="field-action" id="copyKey" data-i18n-aria="status.approvalKey" aria-label="Copy OAuth approval key"><svg viewBox="0 0 20 20"><rect x="7" y="6" width="10" height="11" rx="1.5"/><path d="M13 6V4H5a2 2 0 00-2 2v8h4"/></svg><span data-i18n="status.copy">Copy</span></button></div><p class="field-helper" data-i18n="status.keyHelp">Enter this on the ChatGPT OAuth approval page. Never paste it into a chat message.</p></div>
  </div>
  <div class="operations">
-  <div><h2>연결 제어</h2><p id="actionNote">상태 분석 후 최소 변경 복구를 선택합니다.</p></div>
-  <div class="action-buttons"><button class="btn primary" id="repair">현재 연결 활용 / 복구</button><button class="btn secondary" id="verify">전체 재검증</button><button class="btn ghost" id="restart">강제 재시작</button><button class="btn danger-ghost" id="stop">서비스 중지</button></div>
+  <div><h2 data-i18n="status.controls">Connection controls</h2><p id="actionNote" data-i18n="status.controlsDesc">Choose the smallest safe recovery action after diagnosis.</p></div>
+  <div class="action-buttons"><button class="btn primary" id="repair" data-i18n="status.repair">Reuse / Repair</button><button class="btn secondary" id="verify" data-i18n="status.verify">Verify all</button><button class="btn ghost" id="restart" data-i18n="status.restart">Force restart</button><button class="btn danger-ghost" id="stop" data-i18n="status.stop">Stop service</button></div>
  </div>
- <div class="bottom-line"><div><span class="footer-symbol"></span><span id="chatState">ChatGPT의 MCP 등록 여부는 해당 앱에서 확인해야 합니다.</span></div><button class="text-action" id="openChat">ChatGPT 열기 <svg viewBox="0 0 16 16"><path d="M5 11L11 5M5 5h6v6"/></svg></button></div>
- <div class="notice-bar" id="notice" role="status" aria-live="polite">이 앱을 닫아도 운영체제의 백그라운드 서비스는 유지됩니다.</div>
+ <div class="bottom-line"><div><span class="footer-symbol"></span><span id="chatState" data-i18n="status.plugin">Check the MCP connection status in ChatGPT.</span></div><button class="text-action" id="openChat"><span data-i18n="status.openChat">Open ChatGPT</span> <svg viewBox="0 0 16 16"><path d="M5 11L11 5M5 5h6v6"/></svg></button></div>
+ <div class="notice-bar" id="notice" data-i18n="status.footer" role="status" aria-live="polite">Closing this window does not stop the background service.</div>
  </main></div>
-</div><script src="./app.js"></script></body></html>
+</div><script type="module" src="./app.js"></script></body></html>
