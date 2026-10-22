@@ -1,5 +1,7 @@
 # Runtime dependency preparation
 
+[Getting started](GETTING_STARTED.md) · [한국어](GETTING_STARTED.ko.md) · [Troubleshooting](TROUBLESHOOTING.md)
+
 ## Goal
 
 The manager **must not bundle Node.js, git, cloudflared or the upstream MCP server**. It should detect what's already installed, reuse compatible working components and request **explicit user approval for each missing dependency** before invoking the operating system's package manager.
@@ -38,6 +40,6 @@ Installer commands are allowlisted. A GUI consent dialog must name the package, 
 
 The package includes standalone `bootstrap/windows.ps1` and `bootstrap/macos.sh` probes and consent-driven installer entry points. These scripts deliberately do **not** install a package as a side effect of a `probe` call. On Windows, installers use `winget`; on macOS they use the existing `brew` executable. If the package manager itself is missing, report an instruction and official URL instead of executing an arbitrary downloaded bootstrap shell.
 
-The desktop UI's unified per-dependency consent workflow is **not yet fully wired to the Tauri Rust command layer**. Do not claim the current published v0.3.0 binary implements automatic dependency installation or clean-machine provisioning.
+**Version-specific behavior:** macOS Tauri **v0.4.0-rc.2** has an explicit dependency dialog wired to allowlisted Rust IPC commands for inspection and individually approved installation. It requires **Homebrew to already exist** for Node.js, Git and cloudflared installation. The published **Windows v0.3.0** package is a separate Electron-based installer and does not share the same Tauri workflow. **Neither distribution has completed full clean-machine unattended-install verification.** UI tests do not replace real onboarding tests.
 
 **Security constraints:** Only allowlisted dependency identities, no passwords or tokens in logs, avoid overwriting non-owned instances, never suppress macOS Gatekeeper or Windows security prompts. Download / install only after explicit user choice.

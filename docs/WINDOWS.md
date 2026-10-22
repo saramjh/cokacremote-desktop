@@ -1,4 +1,8 @@
-# Windows MCP Manager — desktop v0.2
+# Windows MCP Manager — published desktop v0.3.0
+
+[Windows installation guide](GETTING_STARTED.md) · [한국어 설치](GETTING_STARTED.ko.md) · [FAQ](TROUBLESHOOTING.md)
+
+The [published v0.3.0 ZIP](https://github.com/saramjh/cokacremote-desktop/releases/tag/v0.3.0) has a **top-level INSTALL.cmd** (verified in the release archive). Extract the entire ZIP before running it. Windows SmartScreen can warn for unsigned scripts; review before granting trust and do not disable Defender globally.
 
 This project **wraps existing cokacremote Windows scripts**. It does not replace them. Run via the desktop shortcut "cokacremote MCP Manager" or `deploy/windows/OPEN-MCP-MANAGER.cmd`.
 

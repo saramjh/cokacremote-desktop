@@ -1,5 +1,7 @@
 # Connect cokacremote to ChatGPT
 
+For platform-specific installation, start with [Getting started](GETTING_STARTED.md) or [한국어 시작하기](GETTING_STARTED.ko.md). For frequent issues, see [Troubleshooting](TROUBLESHOOTING.md).
+
 This is a user guide for an **owner-operated** remote MCP server. The desktop manager does not log into ChatGPT or register a plugin automatically. The account owner makes that decision inside ChatGPT.
 
 ## What runs where
@@ -16,7 +18,7 @@ Your local computer runs the tools. `cloudflared` provides a temporary public HT
 
 ## Before connecting
 
-1. Install the desktop manager from [Releases](https://github.com/saramjh/cokacremote-desktop/releases). For macOS, read [macOS Gatekeeper guidance](./MACOS_SECURITY.md).
+1. Select the appropriate version using the [installation matrix](GETTING_STARTED.md). For macOS, review [Gatekeeper guidance](MACOS_SECURITY.md) before downloading a non-notarized app.
 2. In the manager, confirm **local MCP**, **Quick Tunnel**, and **OAuth** status. The public endpoint generally looks like `https://EXAMPLE.trycloudflare.com/mcp`. Copy the **actual** address from your own manager; example addresses cannot connect.
 3. Make sure this is your own machine, and review the capabilities exposed by the upstream [kstost/cokacremote](https://github.com/kstost/cokacremote) server. MCP tools can be powerful enough to execute code and change files.
 4. Keep the OAuth approval key secret. It is intended for the **OAuth approval page**, not for ChatGPT chat messages, bug reports, or screenshots.

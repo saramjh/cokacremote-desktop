@@ -1,5 +1,7 @@
 # Component status indicators — shared contract
 
+[Getting started](GETTING_STARTED.md) · [한국어](GETTING_STARTED.ko.md) · [FAQ](TROUBLESHOOTING.md)
+
 Windows and macOS must render the same evidence with **one presentation policy**, `ui/indicator-policy.mjs`, rather than using OS-specific color shortcuts or the Windows Task Scheduler / macOS LaunchAgent state to paint OAuth green or yellow.
 
 | State | Visual | Required evidence | Meaning |
@@ -22,4 +24,4 @@ Testing:
 - `test/indicator-policy.test.mjs`: identical Mac/Windows outputs for identical evidence, task independence, non-owned processes blocked.
 - `test/mac-oauth-probe.test.mjs`: Mac metadata issuer normalization, timeout, real mismatch and anonymous 200.
 - `test/i18n.test.mjs`: seven-language strings parity.
-- Live Mac test remains necessary before distributing rebuilt Tauri/macOS binary, since this workspace is Windows and Mac MCP connectivity was unavailable.
+- macOS v0.4.0-rc.2 has undergone on-device packaged-status sensor checks (local MCP, tunnel and OAuth) and a real GUI window drag test. These checks do **not** establish successful clean-machine installation or ChatGPT registration in every workspace. Repeat clean-machine and signed-distribution tests before calling the release production-ready.

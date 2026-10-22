@@ -1,4 +1,6 @@
-# Tauri macOS v0.4.0-rc.1: build, distribution and Apple notarization
+# Tauri macOS release engineering — v0.4.0-rc.2 and Apple notarization
+
+**Current release state:** [v0.4.0-rc.2](https://github.com/saramjh/cokacremote-desktop/releases/tag/v0.4.0-rc.2) was **manually published as an UNNOTARIZED preview**, including ZIP/DMG and a source-install tar.gz asset. This is **not** a successful notarized CI publication. The GitHub Latest v0.3.0 release includes a separate Windows desktop package. End users should begin with [Getting started](GETTING_STARTED.md), not release-maintainer instructions.
 
 This source contains the **macOS Apple Silicon Tauri desktop bundle**. The app uses system WebKit instead of bundling Electron Chromium, and does not bundle the upstream MCP server or your OAuth credentials.
 
@@ -6,7 +8,7 @@ This source contains the **macOS Apple Silicon Tauri desktop bundle**. The app u
 
 [macOS GitHub Actions workflow](../.github/workflows/tauri-macos.yml) checks the shared seven-language UI, builds for `aarch64-apple-darwin`, creates a ZIP and DMG, validates the app signature and computes SHA-256 checksums.
 
-- If repository Apple signing/notary credentials are **completely absent**, the workflow can publish an **UNNOTARIZED developer preview only**. The ZIP/DMG filenames and release notes explicitly say UNNOTARIZED; macOS Gatekeeper may reject them. Never describe this as a trusted, notarized installer.
+- The current rc.2 preparation-branch workflow **fails closed** without required Apple signing and notarization secrets. Its automatic publication path is reserved for verified notarized artifacts. The separately labeled rc.2 **manual** preview distribution must not be interpreted as successful notarization.
 - If the full Apple signing/notary configuration is available, Tauri signs with Developer ID Application, submits to Apple notarization, staples the ticket, and validates it before publishing. A failed validation blocks publishing.
 - If only part of the signing/notary configuration is present, the build **fails closed** rather than publishing confusing unsigned assets.
 
@@ -41,6 +43,9 @@ Reference: [Tauri macOS signing & notarization](https://v2.tauri.app/distribute/
 The manager never disables Gatekeeper, removes quarantine attributes, uploads user credentials or silently replaces an existing healthy MCP server/tunnel.
 
 ## Known limits
+
+The current default branch and macOS rc.2 release tag are **not identical** source revisions. Verify both the tag target and actual uploaded artifacts before generating release notes. Do not assume a macOS rc.2 package also updates Windows stable.
+
 
 This macOS target relies on an already-installed Node.js for the MCP server probes/operations. The dependency panel can inspect the host without Node and asks user approval before a targeted Homebrew installation. Homebrew itself is not auto-installed.
 
