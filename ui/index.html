@@ -3,7 +3,7 @@
 <header class="chrome">
  <div class="brand-mark" aria-hidden="true"><svg width="23" height="23" viewBox="0 0 24 24" fill="none"><path d="M3 12h5l4-7 4 14 4-7h1" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/></svg></div>
  <div class="app-title">cokacremote <span>CONTROL DESK</span></div>
- <div class="chrome-divider"></div><span class="chrome-context">Windows / Remote MCP</span>
+ <div class="chrome-divider"></div><span class="chrome-context" id="hostContext">Host / Remote MCP</span>
  <div class="spacer"></div>
  <div class="chrome-current" id="heartbeat"><span class="pulse"></span> 상태 확인 중</div>
  <button class="chrome-button" id="minimize" title="창 최소화" aria-label="창 최소화"><svg viewBox="0 0 20 20"><path d="M4 10h12"/></svg></button>
@@ -14,7 +14,7 @@
  <p class="rail-kicker">Connection control</p>
  <div class="rail-heading">원격 환경의<br>현재 상태</div>
  <div class="topology" role="group" aria-label="연결 구성도">
-  <div class="topology-row"><div class="symbol"><svg viewBox="0 0 32 32" fill="none"><rect x="5" y="8" width="22" height="16" rx="2.5"/><path d="M9 13h14M9 18h8"/></svg></div><div><b>Windows host</b><small>현재 컴퓨터</small></div><span class="top-status stable">LOCAL</span></div>
+  <div class="topology-row"><div class="symbol"><svg viewBox="0 0 32 32" fill="none"><rect x="5" y="8" width="22" height="16" rx="2.5"/><path d="M9 13h14M9 18h8"/></svg></div><div><b id="hostLabel">Local host</b><small>현재 컴퓨터</small></div><span class="top-status stable">LOCAL</span></div>
   <div class="topology-join"><span class="join-dot"></span></div>
   <div class="topology-row" id="mapServer"><div class="symbol"><svg viewBox="0 0 32 32" fill="none"><rect x="8" y="5" width="16" height="22" rx="2"/><path d="M12 11h8m-8 6h8M12 23h2"/></svg></div><div><b>MCP server</b><small>127.0.0.1:3000</small></div><span class="top-status" id="mapServerState">CHECK</span></div>
   <div class="topology-join"><span class="join-dot"></span></div>
@@ -54,6 +54,6 @@
   <div class="action-buttons"><button class="btn primary" id="repair">현재 연결 활용 / 복구</button><button class="btn secondary" id="verify">전체 재검증</button><button class="btn ghost" id="restart">강제 재시작</button><button class="btn danger-ghost" id="stop">서비스 중지</button></div>
  </div>
  <div class="bottom-line"><div><span class="footer-symbol"></span><span id="chatState">ChatGPT의 MCP 등록 여부는 해당 앱에서 확인해야 합니다.</span></div><button class="text-action" id="openChat">ChatGPT 열기 <svg viewBox="0 0 16 16"><path d="M5 11L11 5M5 5h6v6"/></svg></button></div>
- <div class="notice-bar" id="notice" role="status" aria-live="polite">이 앱을 닫아도 Windows 예약 작업과 MCP 연결은 유지됩니다.</div>
+ <div class="notice-bar" id="notice" role="status" aria-live="polite">이 앱을 닫아도 운영체제의 백그라운드 서비스는 유지됩니다.</div>
  </main></div>
 </div><script src="./app.js"></script></body></html>

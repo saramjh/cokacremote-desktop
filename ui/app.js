@@ -1,5 +1,8 @@
 'use strict';
 const el=id=>document.getElementById(id);
+const systemName=window.mcpManager.platform==='darwin'?'macOS':'Windows';
+el('hostLabel').textContent=systemName+' host';
+el('hostContext').textContent=systemName+' / Remote MCP';
 const texts={
  REUSE_BOTH:['연결 유지가 가장 안전합니다.','서버와 터널이 정상입니다. 주소와 프로세스를 변경하지 않습니다.','현재 연결 유지','stable'],
  ADOPT_EXISTING:['실행 환경만 복구하면 됩니다.','동작 중인 구성요소를 그대로 인수합니다. Quick Tunnel을 재발급하지 않습니다.','기존 프로세스 인수','stable'],

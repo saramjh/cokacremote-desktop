@@ -1,5 +1,6 @@
 const{contextBridge,ipcRenderer}=require('electron');
 contextBridge.exposeInMainWorld('mcpManager',Object.freeze({
+ platform:process.platform,
  status:(remote=false)=>ipcRenderer.invoke('status',Boolean(remote)),
  operate:(action)=>ipcRenderer.invoke('operate',String(action)),
  copy:(type)=>ipcRenderer.invoke('copy',String(type)),

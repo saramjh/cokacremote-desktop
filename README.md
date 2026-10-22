@@ -8,11 +8,11 @@ Download the **Windows ZIP** or **macOS Apple Silicon ZIP** from GitHub Releases
 
 ### Windows 10/11
 
-Unzip `cokacremote-manager-windows-v0.2.0.zip` and run `INSTALL.cmd`. Installer checks Node.js/cloudflared prerequisites, installs the desktop runtime, reuses the existing Windows Task Scheduler supervisor, opens the manager, and creates a desktop shortcut. It preserves a healthy existing MCP server and Quick Tunnel. Microsoft Defender/SmartScreen may request a trust decision for an unsigned script installer.
+Unzip `cokacremote-manager-windows-v0.2.1.zip` and run `INSTALL.cmd`. Installer checks Node.js/cloudflared prerequisites, installs the desktop runtime, reuses the existing Windows Task Scheduler supervisor, opens the manager, and creates a desktop shortcut. It preserves a healthy existing MCP server and Quick Tunnel. Microsoft Defender/SmartScreen may request a trust decision for an unsigned script installer.
 
 ### macOS Apple Silicon (M1/M2/M3/M4)
 
-Unzip `cokacremote-manager-macos-arm64-v0.2.0.zip` and open **cokacremote Manager.app**. This ad-hoc-signed app is **not Apple-notarized**, so macOS may require opening it from Finder using Open Anyway. It reuses an already running local MCP/tunnel; initial setup requires Node.js, Git, cloudflared and npm available on PATH. If dependencies are absent, the manager reports a prerequisite error; it cannot silently install privileged system components.
+Unzip `cokacremote-manager-macos-arm64-v0.2.1.zip` and open **cokacremote Manager.app**. This ad-hoc-signed app is **not Apple-notarized**, so macOS may require opening it from Finder using Open Anyway. It reuses an already running local MCP/tunnel; initial setup requires Node.js, Git, cloudflared and npm available on PATH. If dependencies are absent, the manager reports a prerequisite error; it cannot silently install privileged system components.
 
 ### Connect to ChatGPT
 
@@ -40,6 +40,8 @@ Ambiguous process owner: block destructive actions.
 Transient remote failure with running components: retain them and recheck rather than blindly rotate a working tunnel.
 
 Pure reconciliation tests cover 11 scenarios, but a full reboot and destructive live-fault matrix must be performed separately on a controlled environment. The manager does not infer ChatGPT-side plugin status from local checks.
+
+**Windows v0.2.1** uses the already verified Windows v0.2.0 runtime unchanged. The macOS v0.2.1 build includes platform-aware labels and Finder PATH handling.
 
 ## Build
 

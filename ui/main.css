@@ -1,5 +1,5 @@
-@font-face{font-family:Workbench;src:local('Bahnschrift SemiCondensed'),local('Bahnschrift');font-display:swap}
-@font-face{font-family:Korean;src:local('Noto Sans KR'),local('NotoSansKR-VF');font-display:swap}
+@font-face{font-family:Workbench;src:local('Bahnschrift SemiCondensed'),local('Bahnschrift'),local('DIN Alternate'),local('Avenir Next');font-display:swap}
+@font-face{font-family:Korean;src:local('Noto Sans KR'),local('NotoSansKR-VF'),local('Apple SD Gothic Neo');font-display:swap}
 :root{--night:#10282d;--deep:#16373a;--ink:#183034;--muted:#647571;--sub:#9ab5b4;--paper:#f4f5f0;--line:#d5dfd9;--green:#15776c;--greenSoft:#e5f0e9;--orange:#ae7534;--orangeSoft:#fcf2df;--red:#a64f3c;--shadow:0 13px 38px rgba(26,48,42,.08);font-family:Korean,Workbench,sans-serif;color:var(--ink)}
 *,*::before,*::after{box-sizing:border-box}
 html,body{margin:0;width:100%;height:100%;background:var(--paper);overflow:hidden}
