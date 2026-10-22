@@ -45,3 +45,14 @@ The manager never disables Gatekeeper, removes quarantine attributes, uploads us
 This macOS target relies on an already-installed Node.js for the MCP server probes/operations. The dependency panel can inspect the host without Node and asks user approval before a targeted Homebrew installation. Homebrew itself is not auto-installed.
 
 Windows Tauri is a separate platform target; Windows v0.3.0 remains the tested packaged Windows installer. A macOS Tauri release is **not** a claim that the Windows Tauri installer has been built.
+
+## Apple Developer Program owner setup (once)
+
+The owner must authenticate in Apple's UI; do not share the Apple Account password, a private key or a PKCS#12 password in chat.
+
+1. On the Mac, sign in with the enrolled Apple Developer account in **Xcode → Settings → Accounts**, then create/install **Developer ID Application** under **Manage Certificates** (Account Holder role), and export its certificate + private key as a password-protected `.p12` from Keychain Access.
+2. Under **App Store Connect → Users and Access → Integrations**, create an **App Store Connect API key** with sufficient Developer access, download the `.p8` key once, and note the Key ID and Issuer ID.
+3. With the `.p12` and `.p8` on that Mac, run `bash scripts/configure-apple-notarization.sh` in a local interactive Terminal. It validates the available identity and files, asks for explicit confirmation, and submits seven secrets through `gh` on standard input without printing their contents. No secrets go into Git or ChatGPT.
+4. Once all seven are present, run the GitHub Actions workflow with `publish: false`, require actual Developer ID signature, hardened runtime, secure timestamp, Apple notarization and stapler verification; only then run `publish: true` on the release branch merged into main.
+
+`v0.4.0-rc.1` remains an immutable UNNOTARIZED developer preview. A trusted build must get a distinct version and release tag.
