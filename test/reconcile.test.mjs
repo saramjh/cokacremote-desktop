@@ -1,0 +1,15 @@
+import test from 'node:test';import assert from 'node:assert/strict';
+import {decide,STATES} from '../core/reconcile.mjs';
+const full={taskState:'Running',serverAlive:true,tunnelAlive:true,serverOwned:true,tunnelOwned:true,localHealth:'HEALTHY',remoteHealth:'HEALTHY',oauthAligned:true,anonymous401:true,urlValid:true,url:'https://live.trycloudflare.com/mcp'};
+const check=(patch,expected)=>assert.equal(decide({...full,...patch}).operation,expected);
+test('healthy -> reuse both, no reconnect',()=>{const a=decide(full);assert.equal(a.operation,STATES.REUSE);assert.equal(a.requiresChatGPTReconnect,false);assert.equal(a.effectiveReady,true)});
+test('healthy orphan task -> adopt without rotating tunnel',()=>{const a=decide({...full,taskState:'Ready'});assert.equal(a.operation,STATES.ADOPT);assert.equal(a.effectiveReady,false)});
+test('public transient outage -> keep both and recheck',()=>check({remoteHealth:'OFFLINE'},STATES.WAIT));
+test('OAuth metadata mismatch while both live -> observe and fence',()=>check({oauthAligned:false},STATES.WAIT));
+test('server stopped but tunnel survives -> recover only server',()=>check({serverAlive:false,serverOwned:false,localHealth:'OFFLINE',remoteHealth:'OFFLINE'},STATES.SERVER));
+test('tunnel stopped but MCP survives -> rebind server to a new issuer',()=>check({tunnelAlive:false,tunnelOwned:false,remoteHealth:'OFFLINE',oauthAligned:false},STATES.REBIND));
+test('both absent -> start both',()=>check({serverAlive:false,tunnelAlive:false,serverOwned:false,tunnelOwned:false,localHealth:'OFFLINE',remoteHealth:'OFFLINE',urlValid:false,url:''},STATES.START));
+test('foreign listener -> refuse destructive action',()=>check({serverOwned:false},STATES.BLOCK));
+test('foreign cloudflared -> refuse destructive action',()=>check({tunnelOwned:false},STATES.BLOCK));
+test('tunnel alive but no verified URL -> no duplicate tunnel',()=>check({serverAlive:false,serverOwned:false,localHealth:'OFFLINE',urlValid:false,url:''},STATES.WAIT));
+test('hostname rotation -> reconnection required',()=>{let d=decide({...full,previousUrl:'https://old.trycloudflare.com/mcp'});assert.equal(d.requiresChatGPTReconnect,true)});
