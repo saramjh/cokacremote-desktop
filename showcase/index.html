@@ -4,9 +4,9 @@
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="theme-color" content="#13262e"/>
-  <meta name="description" content="cokacremote Desktop Manager connects your computer to ChatGPT through an authenticated MCP server, with a visible, operator-controlled connection lifecycle."/>
+  <meta name="description" content="Explore cokacremote, compare Windows stable and Mac preview downloads, and learn secure setup for your own MCP, OAuth and Cloudflare Quick Tunnel."/>
   <meta property="og:title" content="cokacremote — The connection is yours."/>
-  <meta property="og:description" content="A visual operator console for your own MCP server, OAuth approval, and secure tunnel."/>
+  <meta property="og:description" content="See the connection workflow, choose the correct Windows or Mac release, and follow secure installation guides. macOS preview is not Apple notarized."/>
   <title>cokacremote — Desktop connection manager</title>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
@@ -20,8 +20,8 @@
     <svg viewBox="0 0 48 48" width="37" height="37" fill="none" aria-hidden="true"><path d="M36 12A17 17 0 1 0 36 36" stroke="currentColor" stroke-width="5" stroke-linecap="round"/><path d="M25 24h16" stroke="#65d4c4" stroke-width="5" stroke-linecap="round"/></svg>
     <span>cokacremote <small>/ desktop</small></span>
   </a>
-  <nav aria-label="Primary navigation"><a href="#how">How it works</a><a href="#setup">Set up</a><a href="#security">Security</a></nav>
-  <a class="header-github" href="https://github.com/saramjh/cokacremote-desktop" target="_blank" rel="noopener noreferrer">Source <svg viewBox="0 0 18 18" aria-hidden="true"><path d="M4 14 14 4M5 4h9v9"/></svg></a>
+  <nav aria-label="Primary navigation"><a href="#downloads">Downloads</a><a href="#how">How it works</a><a href="#setup">Set up</a><a href="#security">Security</a></nav>
+  <a class="header-github" href="#downloads">Get started <svg viewBox="0 0 18 18" aria-hidden="true"><path d="M4 14 14 4M5 4h9v9"/></svg></a>
 </header>
 <main id="main">
 <section class="hero" id="top">
@@ -31,10 +31,10 @@
       <h1>From your computer.<br/><span>Into your workflow.</span></h1>
       <p class="hero-description">Keep the tools on your own machine. Make them available to ChatGPT through an authenticated MCP connection—and see exactly what is running.</p>
       <div class="hero-actions">
-        <a class="button button-bright" href="https://github.com/saramjh/cokacremote-desktop/releases" target="_blank" rel="noopener noreferrer">View releases <span aria-hidden="true">↗</span></a>
+        <a class="button button-bright" href="#downloads">Choose your download <span aria-hidden="true">↓</span></a>
         <a class="button button-quiet" href="#how">Explore the connection <span aria-hidden="true">↓</span></a>
       </div>
-      <p class="availability">Windows & macOS · Seven interface languages · Local-first operation</p>
+      <p class="availability">Windows stable v0.3.0 · Mac preview v0.4.0-rc.2 · Seven UI languages</p>
     </div>
     <div class="signal-stage" aria-label="Animated illustration showing a local computer, a tunnel, and ChatGPT connected by an authenticated path">
       <div class="stage-top"><span>Connection study</span><span class="stage-mode" id="stageMode">Demonstration / not a live connection</span></div>
@@ -55,7 +55,44 @@
       <div class="stage-controls"><span class="stage-caption" id="stageCaption">01 — Tools stay on your own computer.</span><button type="button" id="replayMotion" class="motion-button" aria-label="Replay connection animation"><svg viewBox="0 0 18 18" aria-hidden="true"><path d="M14 7A5.5 5.5 0 1 0 14.4 11M14 3v5H9"/></svg> Replay</button></div>
     </div>
   </div>
-  <div class="hero-footer"><span>Not a cloud workspace. A controlled bridge.</span><a href="#setup">Start with your machine <span aria-hidden="true">↓</span></a></div>
+  <div class="hero-footer"><span>Interactive concept demo — no connection to your device.</span><a href="https://github.com/saramjh/cokacremote-desktop/blob/main/docs/GETTING_STARTED.ko.md" target="_blank" rel="noopener noreferrer">한국어 설치 안내 <span aria-hidden="true">↗</span></a></div>
+</section>
+
+<section id="downloads" class="downloads-section" aria-labelledby="downloadTitle">
+  <div class="downloads-inner">
+    <div class="downloads-lead">
+      <div><p class="micro-label">Start here · 먼저 확인하세요</p><h2 id="downloadTitle">The right build.<br><span>The right expectations.</span></h2></div>
+      <div class="downloads-summary"><p>Different releases for Windows and Mac. Compare your options before installing—especially the Mac security requirements.</p><p class="downloads-notice"><strong>macOS is a developer preview, not Apple-notarized.</strong> Switching DMG to ZIP does not bypass Gatekeeper.</p></div>
+    </div>
+    <div class="platform-grid">
+      <article class="platform-card windows-card">
+        <div class="platform-meta"><span class="platform-name">WINDOWS 10 / 11</span><span class="platform-version">v0.3.0 · Stable release</span></div>
+        <h3>Ready for the Windows setup path.</h3>
+        <p>Download the ZIP, extract all files and run the top-level <code>INSTALL.cmd</code>. Windows SmartScreen may still ask you to review an unsigned installer.</p>
+        <div class="platform-steps"><span>01 Download ZIP</span><span>02 Extract all</span><span>03 Review &amp; run INSTALL.cmd</span></div>
+        <a class="platform-cta" href="https://github.com/saramjh/cokacremote-desktop/releases/tag/v0.3.0" target="_blank" rel="noopener noreferrer">Windows downloads <span aria-hidden="true">↗</span></a>
+        <p class="platform-foot">Requires a configured local MCP environment. First-run automatic provisioning on a clean machine is not guaranteed.</p>
+      </article>
+      <article class="platform-card mac-card">
+        <div class="platform-meta"><span class="platform-name">MAC · APPLE SILICON</span><span class="platform-version">v0.4.0-rc.2 · Preview</span></div>
+        <h3>Choose how you want to install.</h3>
+        <div class="mac-methods">
+          <div class="mac-method"><strong>UNNOTARIZED DMG / ZIP <span>Prebuilt app</span></strong><p>Fastest download, but <b>not notarized</b>. macOS may block launch. Only approve a verified, trusted app in System Settings.</p></div>
+          <div class="mac-method"><strong>SOURCE-INSTALL.tar.gz <span>Local build</span></strong><p>Free to compile on your Mac, but requires Node.js, Rust and Xcode Command Line Tools, plus Terminal. <b>Not one-click.</b></p></div>
+        </div>
+        <a class="platform-cta" href="https://github.com/saramjh/cokacremote-desktop/releases/tag/v0.4.0-rc.2" target="_blank" rel="noopener noreferrer">Mac preview downloads <span aria-hidden="true">↗</span></a>
+        <p class="platform-foot">Only Apple Silicon M-series is covered. No tested Intel package. Never disable Gatekeeper globally.</p>
+      </article>
+    </div>
+    <div class="downloads-help">
+      <div><strong>Need a walkthrough?</strong><p>Install, inspect dependencies, connect to ChatGPT and troubleshoot safely.</p></div>
+      <div class="help-links">
+        <a href="https://github.com/saramjh/cokacremote-desktop/blob/main/docs/GETTING_STARTED.ko.md" target="_blank" rel="noopener noreferrer">한국어 시작하기 <span aria-hidden="true">↗</span></a>
+        <a href="https://github.com/saramjh/cokacremote-desktop/blob/main/docs/GETTING_STARTED.md" target="_blank" rel="noopener noreferrer">English guide <span aria-hidden="true">↗</span></a>
+        <a href="https://github.com/saramjh/cokacremote-desktop/blob/main/docs/TROUBLESHOOTING.md" target="_blank" rel="noopener noreferrer">Installation FAQ <span aria-hidden="true">↗</span></a>
+      </div>
+    </div>
+  </div>
 </section>
 
 <section class="intro-strip" aria-label="Key capabilities"><p>Everything you need to operate the connection, <strong>nothing that quietly takes it over.</strong></p><div class="intro-track"><span>Inspect</span><span class="track-dot"></span><span>Approve</span><span class="track-dot"></span><span>Connect</span><span class="track-dot"></span><span>Recover</span></div></section>
@@ -71,7 +108,7 @@
 </section>
 
 <section id="setup" class="section section-setup">
-  <div class="section-heading"><div><p class="micro-label">First-run experience</p><h2>Prepare only what's missing.</h2></div><p>No bundled toolchain. Inspect the host, request permission for each absent dependency, install from trusted sources, then verify.</p></div>
+  <div class="section-heading"><div><p class="micro-label">Illustrative walkthrough · not a live device scan</p><h2>Prepare only what's missing.</h2></div><p>A demonstration of the intended first-run flow. The public builds still require prerequisites and have not been tested as fully automatic installers on every clean machine.</p></div>
   <div class="setup-grid">
     <div class="setup-steps" role="tablist" aria-label="Setup walkthrough">
       <button type="button" class="step is-active" role="tab" id="tab-inspect" aria-controls="panel-preview" aria-selected="true" data-scene="inspect"><span class="step-count">01</span><span><strong>Inspect this device</strong><small>Existing components first</small></span><span class="step-arrow" aria-hidden="true">↗</span></button>
@@ -118,9 +155,9 @@
     </div>
   </div>
 </section>
-<section class="closing"><p>Control the machine. Understand the route.</p><h2>The connection is yours.</h2><div><a href="https://github.com/saramjh/cokacremote-desktop" class="button button-bright" target="_blank" rel="noopener noreferrer">Explore the repository <span aria-hidden="true">↗</span></a><a href="https://github.com/saramjh/cokacremote-desktop#readme" class="button button-quiet">Read setup notes <span aria-hidden="true">↗</span></a></div></section>
+<section class="closing"><p>Control the machine. Understand the route.</p><h2>The connection is yours.</h2><div><a href="https://github.com/saramjh/cokacremote-desktop" class="button button-bright" target="_blank" rel="noopener noreferrer">Explore the repository <span aria-hidden="true">↗</span></a><a href="https://github.com/saramjh/cokacremote-desktop/blob/main/docs/GETTING_STARTED.ko.md" class="button button-quiet" target="_blank" rel="noopener noreferrer">한국어 설치 가이드 <span aria-hidden="true">↗</span></a></div></section>
 </main>
-<footer><span>cokacremote / desktop</span><span>Independent operator console for <a href="https://github.com/kstost/cokacremote">kstost/cokacremote</a>.</span><a href="#top">Back to top ↑</a></footer>
+<footer><span>cokacremote / desktop · Demo, not a live connection</span><span>Independent operator console for <a href="https://github.com/kstost/cokacremote">kstost/cokacremote</a>.</span><a href="#top">Back to top ↑</a></footer>
 <script src="./motion.js" type="module"></script>
 </body>
 </html>

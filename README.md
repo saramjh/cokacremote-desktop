@@ -4,7 +4,7 @@
 
 **Choose your download:** [Windows v0.3.0 stable](https://github.com/saramjh/cokacremote-desktop/releases/tag/v0.3.0) · [macOS Apple Silicon v0.4.0-rc.2 preview](https://github.com/saramjh/cokacremote-desktop/releases/tag/v0.4.0-rc.2). **macOS is currently NOT Apple notarized.** Downloaded DMG/ZIP builds may be rejected by Gatekeeper. The source-install alternative requires free developer tools; it is not a one-click installer.
 
-**Start here:** **[Quick start / 설치 가이드](docs/GETTING_STARTED.md) · [한국어 시작하기](docs/GETTING_STARTED.ko.md)** · [Troubleshooting / 문제 해결](docs/TROUBLESHOOTING.md) · [Choose an installer below](#downloads-and-installation) · [Connect to ChatGPT](docs/CHATGPT_SETUP.md) · [Interactive showcase](showcase/index.html) · [Dependency preparation](docs/DEPENDENCIES.md) · [Status indicators](docs/STATUS_MODEL.md) · [macOS security](docs/MACOS_SECURITY.md)
+**Start here:** **[Quick start / 설치 가이드](docs/GETTING_STARTED.md) · [한국어 시작하기](docs/GETTING_STARTED.ko.md)** · [Troubleshooting / 문제 해결](docs/TROUBLESHOOTING.md) · [Choose an installer below](#downloads-and-installation) · [Connect to ChatGPT](docs/CHATGPT_SETUP.md) · [Live interactive showcase](https://saramjh.github.io/cokacremote-desktop/) · [Dependency preparation](docs/DEPENDENCIES.md) · [Status indicators](docs/STATUS_MODEL.md) · [macOS security](docs/MACOS_SECURITY.md)
 
 ### First-run workflow
 
