@@ -4,7 +4,7 @@
 
 **Choose your download:** [Windows v0.3.0 stable](https://github.com/saramjh/cokacremote-desktop/releases/tag/v0.3.0) · [macOS Apple Silicon v0.4.0-rc.2 preview](https://github.com/saramjh/cokacremote-desktop/releases/tag/v0.4.0-rc.2). **macOS is currently NOT Apple notarized.** Downloaded DMG/ZIP builds may be rejected by Gatekeeper. The source-install alternative requires free developer tools; it is not a one-click installer.
 
-**Start here:** [Choose an installer below](#downloads-and-installation) · [Connect to ChatGPT](docs/CHATGPT_SETUP.md) · [Interactive showcase](showcase/index.html) · [Dependency preparation](docs/DEPENDENCIES.md) · [Status indicators](docs/STATUS_MODEL.md) · [macOS security](docs/MACOS_SECURITY.md)
+**Start here:** **[Quick start / 설치 가이드](docs/GETTING_STARTED.md) · [한국어 시작하기](docs/GETTING_STARTED.ko.md)** · [Troubleshooting / 문제 해결](docs/TROUBLESHOOTING.md) · [Choose an installer below](#downloads-and-installation) · [Connect to ChatGPT](docs/CHATGPT_SETUP.md) · [Interactive showcase](showcase/index.html) · [Dependency preparation](docs/DEPENDENCIES.md) · [Status indicators](docs/STATUS_MODEL.md) · [macOS security](docs/MACOS_SECURITY.md)
 
 ### First-run workflow
 
@@ -13,7 +13,7 @@
 3. **Install and verify** only missing tools from Windows Package Manager or Homebrew; unknown existing installations are held for manual review rather than overwritten.
 4. **Connect** by copying the manager's HTTPS MCP endpoint into ChatGPT's custom MCP server/plugin setup and completing OAuth approval in **your own account**.
 
-The source tree includes read-only platform probes and permission-gated installers under `bootstrap/`. **These are implementation building blocks, not yet a complete Tauri first-run GUI wizard or a promise that v0.3.0 can provision every fresh PC.** Finish and test full clean-machine installation before presenting it as a production one-click installer.
+The source tree includes read-only platform probes and consent-controlled installers. macOS v0.4.0-rc.2 has a dependency inspection UI, but full clean-machine onboarding is not yet verified. Do not present the macOS preview or the separate Windows v0.3.0 package as guaranteed one-click provisioning. See [the guide](docs/GETTING_STARTED.md) and [FAQ](docs/TROUBLESHOOTING.md).
 
 The showcase is an animated explainer: its simulated statuses are **not measurements of a visitor's device**.
 
@@ -35,6 +35,8 @@ The same Windows/macOS application supports **English, Korean (한국어), Japan
 Localization packs live in `ui/locales/` and share a tested key/placeholder contract. Run `npm test` to verify all seven locales.
 
 ## Downloads and installation
+
+**New user?** Follow [step-by-step setup](docs/GETTING_STARTED.md) or [한국어 사용 설명서](docs/GETTING_STARTED.ko.md). These cover prerequisites, ChatGPT authorization and safe verification; see [Troubleshooting](docs/TROUBLESHOOTING.md) for common errors.
 
 **Please read before downloading:** The newest macOS release is an **UNNOTARIZED preview**, not a production-ready no-warning installer. You should not have to guess which file is safe to run. The Windows and macOS release versions currently differ.
 
