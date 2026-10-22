@@ -1,5 +1,14 @@
 # cokacremote Desktop Manager
 
+## Relationship to cokacremote
+
+**Based on [kstost/cokacremote](https://github.com/kstost/cokacremote)** (upstream MCP server). This repository is an **independent desktop management and deployment extension**, not an official upstream release or an automatically synchronized GitHub fork.
+
+- **Upstream:** MCP tools, Streamable HTTP, OAuth 2.1 and core server operation.
+- **This project:** Windows/macOS GUI, service supervision, Cloudflare Quick Tunnel management, health/recovery policies and installation packages.
+- **Maintenance:** Review upstream changes and verify compatibility before adopting them; do not assume this project tracks upstream automatically.
+- **Attribution:** Both original and extension copyright notices are retained in [LICENSE](LICENSE). Additional integration guidance is in [UPSTREAM.md](UPSTREAM.md).
+
 Desktop management console for an existing [cokacremote](https://github.com/kstost/cokacremote) MCP server. It provides a status-oriented interface for OAuth 2.1, Cloudflare Quick Tunnel, health/ownership checks, connection details, and deliberate recovery on Windows and macOS.
 
 ## Downloads
