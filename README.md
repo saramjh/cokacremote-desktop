@@ -46,6 +46,10 @@ Localization packs live in `ui/locales/` and share a tested key/placeholder cont
 | Mac with Apple Silicon (M1/M2/M3/M4) | [v0.4.0-rc.2 preview — SOURCE INSTALL](https://github.com/saramjh/cokacremote-desktop/releases/tag/v0.4.0-rc.2) | **Technical users:** requires free Node.js/npm, Rust and Xcode Command Line Tools; compiles the app locally |
 | Mac with Apple Silicon (downloaded app) | [v0.4.0-rc.2 preview — DMG/ZIP](https://github.com/saramjh/cokacremote-desktop/releases/tag/v0.4.0-rc.2) | **UNNOTARIZED:** Gatekeeper may block first launch; verify the download and use Apple's individual-app approval only if you trust it |
 
+### On-demand desktop logs
+
+Switch between Connection (default) and Logs in the desktop manager. Inside Logs, select MCP server, Cloudflare Tunnel, or Manager/Supervisor. Read-only snapshots are limited to the last 64 KiB and 180 lines of known per-user files and update every 2.5 seconds only while this tab is visible and live mode is on. Search visible lines, pause or manually refresh. No daemon restart or remote upload occurs. Common credentials, the stored OAuth approval key and Quick Tunnel hostnames are masked, but review logs before sharing them publicly. On Windows the Manager source uses the existing supervisor.log; macOS uses manager-worker.log.
+
 ### Windows 10/11
 
 Download the Windows ZIP from the [v0.3.0 release](https://github.com/saramjh/cokacremote-desktop/releases/tag/v0.3.0). Extract it and run INSTALL.cmd. This is a local management tool rather than a complete unattended fresh-machine bootstrap. It preserves healthy MCP servers and tunnels; Windows SmartScreen may still request a trust decision.
