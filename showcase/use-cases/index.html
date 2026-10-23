@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Real product workflows | cokacremote Desktop Manager</title><meta name="description" content="See practical, non-testimonial workflows for safely keeping an MCP tunnel, approving dependencies and connecting ChatGPT through OAuth."/>
+<link rel="canonical" href="https://saramjh.github.io/cokacremote-desktop/use-cases/"/><meta name="robots" content="index,follow"/>
+<meta property="og:type" content="website"/><meta property="og:title" content="Real product workflows | cokacremote Desktop Manager"/>
+<meta property="og:description" content="See practical, non-testimonial workflows for safely keeping an MCP tunnel, approving dependencies and connecting ChatGPT through OAuth."/>
+<meta property="og:url" content="https://saramjh.github.io/cokacremote-desktop/use-cases/"/><meta property="og:image" content="https://saramjh.github.io/cokacremote-desktop/social-preview.png"/>
+<meta name="twitter:card" content="summary_large_image"/>
+<link rel="icon" href="../favicon.svg" type="image/svg+xml"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="../styles.css"/>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "DevTestudinidae", "item": "https://saramjh.github.io/"}, {"@type": "ListItem", "position": 2, "name": "cokacremote Desktop Manager", "item": "https://saramjh.github.io/cokacremote-desktop/"}, {"@type": "ListItem", "position": 3, "name": "Use Cases", "item": "https://saramjh.github.io/cokacremote-desktop/use-cases/"}]}</script></head>
+<body><a class="skip" href="#content">Skip to content</a>
+<header class="site-header"><a class="brand" href="../"><span>↪ cokacremote <small>/ desktop</small></span></a><nav aria-label="Primary navigation"><a href="../#downloads">Downloads</a><a href="../use-cases/">Use cases</a><a href="../contact/">Contact</a><a href="../privacy/">Privacy</a></nav><a class="header-github" href="../#downloads">Get started ↗</a></header>
+<main id="content" class="inner-page">
+<nav aria-label="Breadcrumb"><a href="https://saramjh.github.io/">DevTestudinidae</a> / <a href="../">cokacremote</a> / <span aria-current="page">Use Cases</span></nav>
+<h1>Ways to use the connection manager</h1>
+<p class="note">These are <strong>examples based on verified features and implementation tests</strong>, not third-party customer case studies or guaranteed outcomes.</p>
+<h2 id="reuse">1. Keep a healthy MCP connection running</h2><p><strong>Situation:</strong> You have an existing local MCP server and a Cloudflare Quick Tunnel. A status refresh should not break the route ChatGPT uses.</p>
+<ol><li>Inspect the Local, Remote and OAuth indicators.</li><li>Use verification and reuse rather than forcing a restart when both processes are healthy.</li><li>If the Quick Tunnel endpoint changes, recheck the public URL and ChatGPT registration.</li></ol>
+<h2 id="dependencies">2. Approve prerequisite changes individually</h2><p><strong>Situation:</strong> A supported dependency such as Git or cloudflared is missing from the computer.</p>
+<ol><li>Run the dependency inspection.</li><li>Review the detected gaps and each proposed operation.</li><li>Approve only the action you want. A fully unattended fresh-machine installation has not been verified.</li></ol>
+<h2 id="oauth">3. Connect under your account's OAuth approval</h2><p><strong>Situation:</strong> You want to make an owner-operated local tool reachable from ChatGPT without handing an approval key to someone else.</p><ol><li>Verify server and tunnel and copy the current HTTPS URL ending in <code>/mcp</code>.</li><li>Register the endpoint if your ChatGPT plan/workspace supports custom MCP.</li><li>Review permissions, approve OAuth through the official interface, then test a read-only operation.</li></ol>
+<p>For setup guidance see <a href="https://github.com/saramjh/cokacremote-desktop/blob/main/docs/GETTING_STARTED.md">English Getting Started</a> or <a href="https://github.com/saramjh/cokacremote-desktop/blob/main/docs/GETTING_STARTED.ko.md">한국어 안내</a>.</p><p>Download the current version from <a href="../#downloads">Windows/Mac options</a>. Questions? <a href="../contact/">Contact support</a>.</p>
+</main>
+<footer><span>cokacremote / desktop · Unofficial project</span><a href="../">Showcase</a><a href="../#faq">FAQ</a><a href="../privacy/">Privacy</a><a href="../contact/">Contact</a></footer>
+<a class="mobile-action" href="../#downloads">Choose your download <span aria-hidden="true">↓</span></a>
+<aside class="analytics-consent" id="analyticsConsent" aria-labelledby="consentTitle" hidden><div><strong id="consentTitle">Optional usage analytics</strong><p>We use the shared DevTestudinidae GA4 property only if you choose Allow. No analytics script is loaded before permission. <a href="../privacy/">Project privacy notice</a>.</p></div><div class="consent-actions"><button type="button" data-consent="reject">Essential only</button><button type="button" data-consent="allow">Allow analytics</button></div></aside><button type="button" id="privacyChoices" class="privacy-choices">Analytics choices</button><script src="../site.js" defer></script>
+</body></html>

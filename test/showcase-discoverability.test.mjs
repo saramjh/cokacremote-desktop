@@ -47,7 +47,8 @@ test('schema graph reflects text users can actually read, not fabricated claims'
 test('sitemap and machine summary use only canonical URL and real release links',()=>{
   const xml=read('sitemap.xml');
   assert.ok(xml.includes('<loc>'+url+'</loc>'));
-  assert.equal((xml.match(/<loc>/g)||[]).length,1);
+  assert.equal((xml.match(/<loc>/g)||[]).length,4);
+  for(const path of ['use-cases/','contact/','privacy/'])assert.ok(xml.includes('<loc>'+url+path+'</loc>'),path);
   assert.ok(!xml.includes('changefreq')&&!xml.includes('priority'));
   const llms=read('llms.txt');
   for(const term of [url,'v0.3.0','v0.4.0-rc.2','UNNOTARIZED','GETTING_STARTED.ko.md'])
