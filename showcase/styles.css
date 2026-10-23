@@ -108,3 +108,10 @@ html,body{max-width:100%;overflow-x:clip}
 .inner-page footer{padding:15px}
 @media(max-width:760px){.cases-grid{grid-template-columns:1fr}.cases-grid article{min-height:0}.analytics-consent{bottom:85px;flex-direction:column;align-items:stretch}.consent-actions{justify-content:stretch}.consent-actions button{flex:1}.mobile-action{position:fixed;z-index:65;display:flex;align-items:center;justify-content:space-between;gap:20px;bottom:0;left:0;right:0;min-height:58px;padding:13px 24px calc(13px + env(safe-area-inset-bottom,0px));background:#65d4c4;color:#102a30;font-weight:700;box-shadow:0 -4px 20px #0003}body:has(.mobile-action){padding-bottom:70px}.section{scroll-margin-top:16px}.downloads-section{scroll-margin-top:20px}}
 @media(max-width:520px){.site-crumb{font-size:10px;padding:9px 21px}.analytics-consent{left:10px;right:10px;padding:13px;bottom:75px}.analytics-consent p{font-size:11px}}
+
+
+/* Lighthouse 2026-10-23 mobile contrast fixes. */
+.platform-card code{color:#264d46}
+.platform-foot,.downloads-help p,.cases-note,.faq-tail,.contact-actions>span{color:#365950}
+.anatomy-index,.micro-label,.step-count,.step small,.trust-copy,.trust-lines p{color:#315c53}
+.section-setup .micro-label{color:#24564d}
