@@ -1,6 +1,7 @@
 'use strict';
 import {resolveLocale,translate,supported} from './i18n.mjs';
 import {indicators,allVerified} from './indicator-policy.mjs';
+import {attachLogViewer} from './log-viewer.mjs';
 
 const el=(id)=>document.getElementById(id);
 const systemName=window.mcpManager.platform==='darwin'?'macOS':'Windows';
@@ -8,6 +9,7 @@ el('hostLabel').textContent=systemName+' host';
 el('hostContext').textContent=systemName+' / Remote MCP';
 
 let locale='en',latest=null,loading=false,busy=false,revealedTimer,autoTimer;
+let logViewer;
 let lastNote={key:'status.footer',params:{},warning:false};
 const t=(key,params={})=>translate(locale,key,params);
 const policyClass=(operation)=>['REUSE_BOTH','ADOPT_EXISTING'].includes(operation)?'stable':
@@ -39,6 +41,7 @@ function setLanguage(code){
  if(latest)apply(latest);
  if(lastNote)showNotice(lastNote.key,lastNote.params,lastNote.warning);
  if(dependencyInventory)renderDependencyInventory(dependencyInventory);
+ if(logViewer)logViewer.translate();
 }
 function fmtDate(value){
  if(!value)return '—';const d=new Date(value);
@@ -267,4 +270,5 @@ async function initialize(){
  await inspectDependencyEnvironment(true);
  autoTimer=setInterval(()=>{if(!busy&&!loading)refresh(true)},45000);
 }
+logViewer=attachLogViewer({t,backend:source=>window.mcpManager.logs(source),onOverview:hideKey});
 initialize();

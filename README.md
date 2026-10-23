@@ -36,6 +36,12 @@ Localization packs live in `ui/locales/` and share a tested key/placeholder cont
 
 Download the **Windows ZIP** or **macOS Apple Silicon ZIP** from GitHub Releases. Both archives exclude existing user OAuth state and private credentials.
 
+### Log monitoring (on-demand tab)
+
+Open Logs from the top workspace tabs to inspect the local MCP server, Cloudflare Tunnel, or Manager/Supervisor messages. Connection view remains the default. Log snapshots are read-only, allowlisted, and limited to the newest 64 KiB / 180 lines from the selected file; live polling runs every 2.5 seconds only while the Logs tab is visible, and can be paused. You can filter the visible text or refresh manually. The log viewer never starts, stops, or restarts any service.
+
+macOS uses the local cokacremote.log, cloudflared.log and manager-worker.log files in the hidden .cokacremote state directory. Windows uses cokacremote.log, cloudflared.log and supervisor.log in the matching user-profile directory. An unavailable file shows an explicit message. Approval-key values, common token formats and Cloudflare Quick Tunnel hostnames are masked. Review any logs before sharing them externally, since unknown sensitive data may still be present.
+
 ### Windows 10/11
 
 Unzip `cokacremote-manager-windows-v0.3.0.zip` and run `INSTALL.cmd`. Installer checks Node.js/cloudflared prerequisites, installs the desktop runtime, reuses the existing Windows Task Scheduler supervisor, opens the manager, and creates a desktop shortcut. It preserves a healthy existing MCP server and Quick Tunnel. Microsoft Defender/SmartScreen may request a trust decision for an unsigned script installer.

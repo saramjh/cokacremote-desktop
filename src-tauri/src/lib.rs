@@ -125,6 +125,71 @@ fn approval_key() -> Result<String, String> {
     Ok(value.into())
 }
 
+
+// Read only bounded tails from the three known per-user service log files.
+// Never accept a caller-supplied filename or follow a symlink.
+const LOG_TAIL_BYTES: usize = 64 * 1024;
+const LOG_TAIL_LINES: usize = 180;
+fn redact_log(input: &str, secret: Option<&str>) -> String {
+    use regex::Regex;
+    let mut text=input.to_string();
+    if let Some(key)=secret {
+        if key.len() >= 16 { text=text.replace(key,"[REDACTED KEY]"); }
+    }
+    for (pattern,replacement) in [
+        (r#"(?i)https://[a-z0-9-]+\.trycloudflare\.com(?:/[^\s"'<>]*)?"#, "[REDACTED TUNNEL URL]"),
+        (r"(?i)(bearer\s+)[a-z0-9._~+/\-]+=*", "$1[REDACTED]"),
+    ] {
+        if let Ok(re)=Regex::new(pattern) { text=re.replace_all(&text,replacement).into_owned(); }
+    }
+    if let Ok(re)=Regex::new(r#"(?i)((?:access_token|refresh_token|client_secret|id_token|oauth[_\- ]?approval[_\- ]?key|authorization|cookie)\s*[:=]\s*["']?)[^\s&"',;}]+"#) {
+        text=re.replace_all(&text,"$1[REDACTED]").into_owned();
+    }
+    text
+}
+fn snapshot_logs(base: &Path, source: &str) -> Result<Value,String> {
+    use std::io::{Read,Seek,SeekFrom};
+    let filename=match source {
+        "server"=>"cokacremote.log",
+        "tunnel"=>"cloudflared.log",
+        "manager"=>"manager-worker.log",
+        _=>return Err("Unknown log source".into())
+    };
+    let path=base.join(filename);
+    let metadata=match fs::symlink_metadata(&path) {
+        Ok(meta)=>meta,
+        Err(e) if e.kind()==std::io::ErrorKind::NotFound =>
+            return Ok(json!({"source":source,"available":false,"text":"","truncated":false,"lineCount":0})),
+        Err(_)=>return Err("Unable to inspect log file".into())
+    };
+    if !metadata.file_type().is_file() || metadata.file_type().is_symlink() {
+        return Err("Log path is not a regular file".into());
+    }
+    let mut file=fs::File::open(&path).map_err(|_|"Log file is not readable".to_string())?;
+    let length=metadata.len();
+    let length_to_read=(length as usize).min(LOG_TAIL_BYTES);
+    let mut data=vec![0_u8;length_to_read];
+    file.seek(SeekFrom::Start(length.saturating_sub(length_to_read as u64)))
+        .map_err(|_|"Log seek failed".to_string())?;
+    file.read_exact(&mut data).map_err(|_|"Log read failed".to_string())?;
+    let decoded=String::from_utf8_lossy(&data);
+    let mut lines=decoded.lines();
+    if length>LOG_TAIL_BYTES as u64 { lines.next(); } // discard a partial first line
+    let all:Vec<&str>=lines.collect();
+    let line_count=all.len().min(LOG_TAIL_LINES);
+    let tail=all[all.len().saturating_sub(LOG_TAIL_LINES)..].join("\n");
+    let key=fs::read_to_string(base.join("oauth-approval-key")).ok();
+    let text=redact_log(&tail,key.as_deref().map(str::trim));
+    Ok(json!({"source":source,"available":true,"text":text,"truncated":length>LOG_TAIL_BYTES as u64 || all.len()>LOG_TAIL_LINES,"lineCount":line_count}))
+}
+#[tauri::command]
+async fn manager_logs(source:String) -> Result<Value,String> {
+    if !["server","tunnel","manager"].contains(&source.as_str()) { return Err("Unknown log source".into()); }
+    tauri::async_runtime::spawn_blocking(move ||
+        snapshot_logs(&home()?.join(".cokacremote"),&source)
+    ).await.map_err(|e| e.to_string())?
+}
+
 #[tauri::command]
 fn manager_reveal() -> Result<String, String> { approval_key() }
 
@@ -203,7 +268,7 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![
             manager_status,manager_operate,manager_dependencies,manager_install_dependency,
             manager_reveal,manager_copy,manager_language,manager_set_language,
-            manager_open_chat,manager_start_dragging,manager_minimize,manager_close
+            manager_open_chat,manager_start_dragging,manager_logs,manager_minimize,manager_close
         ])
         .run(tauri::generate_context!())
         .expect("Could not start cokacremote desktop manager");
@@ -213,5 +278,26 @@ pub fn run() {
 mod tests {
     use super::*;
     #[test] fn strict_action_allowlist() { assert!(ACTIONS.contains(&"setup")); assert!(!ACTIONS.contains(&"shell")); }
+    #[test] fn logs_source_allowlist_and_bounded_redaction() {
+        let base=std::env::temp_dir().join(format!("coka-log-test-{}",std::process::id()));
+        let _=std::fs::create_dir_all(&base);
+        let key="THIS-IS-A-PRIVATE-OAUTH-APPROVAL-KEY-ABCDEFG";
+        std::fs::write(base.join("oauth-approval-key"),key).unwrap();
+        let mut data=String::new();
+        for i in 0..800 { data.push_str(&format!("line {i}\n")); }
+        data.push_str(&format!("Bearer abc.secret Authorization: xyz123 access_token=token567 https://abc.trycloudflare.com/mcp {key}\n"));
+        std::fs::write(base.join("cokacremote.log"),data).unwrap();
+        let out=snapshot_logs(&base,"server").unwrap();
+        assert!(out["available"].as_bool().unwrap());
+        assert!(out["lineCount"].as_u64().unwrap()<=180);
+        assert!(out["truncated"].as_bool().unwrap());
+        let text=out["text"].as_str().unwrap();
+        for secret in [key,"abc.secret","xyz123","token567","abc.trycloudflare.com"] {
+            assert!(!text.contains(secret),"sensitive marker remained");
+        }
+        assert!(snapshot_logs(&base,"../../oauth-approval-key").is_err());
+        assert_eq!(snapshot_logs(&base,"tunnel").unwrap()["available"],false);
+        let _=std::fs::remove_dir_all(base);
+    }
     #[test] fn explicit_dependency_allowlist() { assert!(DEPENDENCIES.contains(&"node")); assert!(!DEPENDENCIES.contains(&"password")); }
 }
