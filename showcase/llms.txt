@@ -19,6 +19,12 @@ cokacremote Desktop Manager is an operator-controlled interface for checking and
 - The computer must remain online and awake to expose its local MCP service.
 - Never share OAuth approval keys or privileged logs. Never disable Gatekeeper globally.
 
+## More pages
+
+- [Verified product workflow examples](https://saramjh.github.io/cokacremote-desktop/use-cases/)
+- [Contact and GitHub issue submission](https://saramjh.github.io/cokacremote-desktop/contact/)
+- [Project-specific privacy, GA4 analytics consent](https://saramjh.github.io/cokacremote-desktop/privacy/)
+
 ## Primary sources
 
 - [Showcase, version selection and FAQ](https://saramjh.github.io/cokacremote-desktop/)

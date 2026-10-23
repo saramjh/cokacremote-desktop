@@ -135,13 +135,14 @@
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
+<nav class="site-crumb" aria-label="Breadcrumb"><a href="https://saramjh.github.io/">DevTestudinidae</a><span aria-hidden="true">/</span><span aria-current="page">cokacremote Desktop Manager</span></nav>
 <header class="site-header">
   <a href="#top" class="brand" aria-label="cokacremote, back to top">
     <svg viewBox="0 0 48 48" width="37" height="37" fill="none" aria-hidden="true"><path d="M36 12A17 17 0 1 0 36 36" stroke="currentColor" stroke-width="5" stroke-linecap="round"/><path d="M25 24h16" stroke="#65d4c4" stroke-width="5" stroke-linecap="round"/></svg>
     <span>cokacremote <small>/ desktop</small></span>
   </a>
-  <nav aria-label="Primary navigation"><a href="#downloads">Downloads</a><a href="#how">How it works</a><a href="#setup">Set up</a><a href="#security">Security</a><a href="#faq">FAQ</a></nav>
-  <a class="header-github" href="#downloads">Get started <svg viewBox="0 0 18 18" aria-hidden="true"><path d="M4 14 14 4M5 4h9v9"/></svg></a>
+  <nav aria-label="Primary navigation"><a href="#downloads">Downloads</a><a href="./use-cases/">Use cases</a><a href="#setup">Set up</a><a href="#security">Security</a><a href="#faq">FAQ</a><a href="./contact/">Contact</a></nav>
+  <a class="header-github" href="#downloads" data-track="header_download">Get started <svg viewBox="0 0 18 18" aria-hidden="true"><path d="M4 14 14 4M5 4h9v9"/></svg></a>
 </header>
 <main id="main">
 <section class="hero" id="top">
@@ -151,7 +152,7 @@
       <h1>From your computer.<br/><span>Into your workflow.</span></h1>
       <p class="hero-description">Keep the tools on your own machine. Make them available to ChatGPT through an authenticated MCP connection—and see exactly what is running.</p>
       <div class="hero-actions">
-        <a class="button button-bright" href="#downloads">Choose your download <span aria-hidden="true">↓</span></a>
+        <a class="button button-bright" href="#downloads" data-track="hero_download">Choose your download <span aria-hidden="true">↓</span></a>
         <a class="button button-quiet" href="#how">Explore the connection <span aria-hidden="true">↓</span></a>
       </div>
       <p class="availability">Windows stable v0.3.0 · Mac preview v0.4.0-rc.2 · Seven UI languages</p>
@@ -275,6 +276,13 @@
     </div>
   </div>
 </section>
+<section class="section section-cases" id="use-cases" aria-labelledby="useCasesTitle">
+<div class="section-heading"><div><p class="micro-label">Workflows · 활용 예시</p><h2 id="useCasesTitle">How it helps in practice.</h2></div><p>Illustrative scenarios based on actual implemented manager behavior—not customer testimonials or guaranteed outcomes.</p></div>
+<div class="cases-grid">
+<article><span>01 / OPERATE</span><h3>Reuse a healthy connection.</h3><p>Verify your running local MCP service and Cloudflare Tunnel, retaining a healthy route instead of restarting unnecessarily.</p><a href="./use-cases/#reuse">View workflow ↗</a></article>
+<article><span>02 / PREPARE</span><h3>Prepare tools with explicit approval.</h3><p>Inspect Node.js, Git and cloudflared, review missing dependencies and approve individually supported installation actions.</p><a href="./use-cases/#dependencies">View workflow ↗</a></article>
+<article><span>03 / CONNECT</span><h3>Connect ChatGPT under OAuth consent.</h3><p>Copy a verified public MCP URL. Register a custom MCP connection if your ChatGPT account supports it, then authorize yourself.</p><a href="./use-cases/#oauth">View workflow ↗</a></article>
+</div><p class="cases-note">These are product use cases, not evidence of a customer's results or a promise of unattended automation.</p></section>
 <section id="faq" class="section section-faq" aria-labelledby="faqTitle">
   <div class="section-heading"><div><p class="micro-label">Product answers · Search &amp; setup reference</p><h2 id="faqTitle">Questions before you connect.</h2></div><p>Plain-language answers about the software, platform releases, security and the local MCP connection. These are product facts, not live device diagnostics.</p></div>
   <div class="faq-list">
@@ -287,9 +295,14 @@
   </div>
   <div class="faq-tail">Read the <a href="https://github.com/saramjh/cokacremote-desktop/blob/main/docs/GETTING_STARTED.ko.md" target="_blank" rel="noopener noreferrer">한국어 시작 안내</a> or <a href="https://github.com/saramjh/cokacremote-desktop/blob/main/docs/TROUBLESHOOTING.md" target="_blank" rel="noopener noreferrer">detailed troubleshooting</a>. Source and development history are public on <a href="https://github.com/saramjh/cokacremote-desktop" target="_blank" rel="noopener noreferrer">GitHub</a>.</div>
 </section>
+<section id="contact" class="section section-contact" aria-labelledby="contactTitle"><div class="section-heading"><div><p class="micro-label">Support and feedback</p><h2 id="contactTitle">Questions about your setup?</h2></div><p>Open a public GitHub support issue. Never include OAuth keys, private endpoints, tokens or personal information. GitHub shows the created issue as submission confirmation.</p></div><div class="contact-actions"><a class="button button-bright" href="./contact/" data-track="contact_open">Contact / support instructions ↗</a><span>First review target: 3–5 business days, best effort; not a guaranteed service level.</span></div></section>
 <section class="closing"><p>Control the machine. Understand the route.</p><h2>The connection is yours.</h2><div><a href="https://github.com/saramjh/cokacremote-desktop" class="button button-bright" target="_blank" rel="noopener noreferrer">Explore the repository <span aria-hidden="true">↗</span></a><a href="https://github.com/saramjh/cokacremote-desktop/blob/main/docs/GETTING_STARTED.ko.md" class="button button-quiet" target="_blank" rel="noopener noreferrer">한국어 설치 가이드 <span aria-hidden="true">↗</span></a></div></section>
 </main>
-<footer><span>cokacremote / desktop · Demo, not a live connection</span><span>Independent, unofficial manager for <a href="https://github.com/kstost/cokacremote">kstost/cokacremote</a>. Not affiliated with OpenAI.</span><a href="./llms.txt">Plain-text facts</a><a href="./sitemap.xml">Sitemap</a><a href="#top">Back to top ↑</a></footer>
+<footer><span>cokacremote / desktop · Demo, not a live connection</span><span>Independent, unofficial manager for <a href="https://github.com/kstost/cokacremote">kstost/cokacremote</a>. Not affiliated with OpenAI.</span><a href="./privacy/">Privacy</a><a href="./contact/">Contact</a><a href="./use-cases/">Use cases</a><a href="./llms.txt">Plain-text facts</a><a href="./sitemap.xml">Sitemap</a><a href="#top">Back to top ↑</a></footer>
+<a class="mobile-action" href="#downloads" data-track="mobile_sticky_download" aria-label="Choose Windows or Mac download">Choose your download <span aria-hidden="true">↓</span></a>
 <script src="./motion.js" type="module"></script>
+<aside class="analytics-consent" id="analyticsConsent" aria-labelledby="consentTitle" hidden><div><strong id="consentTitle">Optional usage analytics</strong><p>We use the shared DevTestudinidae GA4 property only if you choose Allow. No analytics script is loaded before permission. <a href="./privacy/">Project privacy notice</a>.</p></div><div class="consent-actions"><button type="button" data-consent="reject">Essential only</button><button type="button" data-consent="allow">Allow analytics</button></div></aside>
+<button type="button" id="privacyChoices" class="privacy-choices">Analytics choices</button>
+<script src="./site.js" defer></script>
 </body>
 </html>
