@@ -15,6 +15,7 @@ const probe=join(scripts,'platform','windows','status.ps1');
 const keyfile=join(process.env.USERPROFILE||process.env.HOME||'', '.cokacremote','oauth-approval-key');
 const powershell=join(process.env.WINDIR||'C:\\Windows','System32','WindowsPowerShell','v1.0','powershell.exe');
 const allowed=new Set(['setup','restart','stop']);
+const {snapshot:readLogSnapshot}=require('../core/log-reader.cjs');
 const dependencyIds=new Set(['node','git','cloudflared','cokacremote']);
 const bootstrapWindows=join(scripts,'bootstrap','windows.ps1');
 const bootstrapMac=join(scripts,'bootstrap','macos.sh');
@@ -128,6 +129,7 @@ function setupHandlers(){
  ipcMain.handle('dependencies:inspect',()=>inspectDependencies());
  ipcMain.handle('dependencies:install',(_e,name,consent)=>installDependency(String(name),consent===true));
  ipcMain.handle('status',async(_e,remote)=>query(remote));
+ ipcMain.handle('logs:snapshot',(_e,source)=>readLogSnapshot(String(source)));
  ipcMain.handle('operate',async(_e,name)=>action(name));
  ipcMain.handle('copy',async(_e,type)=>{
   if(type==='url'){

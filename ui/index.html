@@ -29,6 +29,12 @@
  <div class="rail-foot"><svg viewBox="0 0 18 18"><path d="M9 2l6 2v5c0 4-2.8 6-6 7-3.2-1-6-3-6-7V4l6-2zM6.5 9l1.8 2 3.7-4"/></svg><span><span data-i18n="rail.security">Credentials stay on this device</span><em data-i18n="rail.securitySub">No automatic registration or forced reconnect</em></span></div>
 </aside>
 <main class="workspace">
+ <nav class="workspace-tabs" role="tablist" aria-label="Workspace views">
+  <button type="button" role="tab" id="viewOverview" aria-controls="overviewPanel" aria-selected="true" class="workspace-tab active" data-i18n="tabs.overview">Connection</button>
+  <button type="button" role="tab" id="viewLogs" aria-controls="logsPanel" aria-selected="false" class="workspace-tab" data-i18n="tabs.logs">Logs</button>
+ </nav>
+ <div id="overviewPanel" role="tabpanel" aria-labelledby="viewOverview">
+
  <section class="status-heading">
   <div class="heading-top"><span class="eyebrow" data-i18n="status.live">Live diagnostics</span><span class="refresh-time" id="lastChecked">Last checked —</span></div>
   <h1 id="headline" data-i18n="status.checking">Checking connection status</h1>
@@ -56,7 +62,26 @@
  </div>
  <div class="bottom-line"><div><span class="footer-symbol"></span><span id="chatState" data-i18n="status.plugin">Check the MCP connection status in ChatGPT.</span></div><button class="text-action" id="openChat"><span data-i18n="status.openChat">Open ChatGPT</span> <svg viewBox="0 0 16 16"><path d="M5 11L11 5M5 5h6v6"/></svg></button></div>
  <div class="notice-bar" id="notice" data-i18n="status.footer" role="status" aria-live="polite">Closing this window does not stop the background service.</div>
- </main></div>
+ </div>
+ <section id="logsPanel" class="logs-panel" role="tabpanel" aria-labelledby="viewLogs" hidden>
+  <div class="logs-heading"><div><p class="section-eyebrow" data-i18n="logs.caption">Read-only diagnostics</p><h1 data-i18n="logs.title">Service logs</h1><p data-i18n="logs.description">Recent local log lines. Logs are read only while this tab is open; sensitive values are masked.</p></div><div class="logs-heading-status"><span class="logs-light"></span><span id="logsSummary" role="status" aria-live="polite"></span></div></div>
+  <div class="logs-source-tabs" role="tablist" aria-label="Log source">
+   <button type="button" role="tab" aria-selected="true" class="log-source active" data-source="server" data-i18n="logs.server">MCP server</button>
+   <button type="button" role="tab" aria-selected="false" class="log-source" data-source="tunnel" data-i18n="logs.tunnel">Cloudflare Tunnel</button>
+   <button type="button" role="tab" aria-selected="false" class="log-source" data-source="manager" data-i18n="logs.manager">Manager</button>
+  </div>
+  <div class="logs-toolbar">
+   <label for="logFilter" data-i18n="logs.filterLabel">Filter</label>
+   <input id="logFilter" type="search" maxlength="100" autocomplete="off" data-i18n-placeholder="logs.filterPlaceholder" placeholder="Search visible lines"/>
+   <button id="logRefresh" class="logs-button" type="button" data-i18n="logs.refresh">Refresh</button>
+   <button id="logFollow" class="logs-button active" type="button" aria-pressed="true" data-i18n="logs.follow">Live · on</button>
+  </div>
+  <div class="log-console-wrap">
+   <pre id="logConsole" class="log-console" tabindex="0" aria-label="Redacted, read-only service log"></pre>
+  </div>
+  <div class="log-help"><span id="logMeta"></span><span data-i18n="logs.disclaimer">Recent lines only · credentials redacted · no service restarted.</span></div>
+ </section>
+</main></div>
 </div><script type="module" src="./tauri-runtime.mjs"></script><script type="module" src="./app.js"></script>
 <div id="dependencyDialog" class="dependency-overlay" hidden>
  <section class="dependency-panel" role="dialog" aria-modal="true" aria-labelledby="dependencyHeading">
