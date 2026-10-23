@@ -6,6 +6,7 @@ contextBridge.exposeInMainWorld('mcpManager',Object.freeze({
  dependencies:()=>ipcRenderer.invoke('dependencies:inspect'),
  installDependency:(name,consent)=>ipcRenderer.invoke('dependencies:install',String(name),consent===true),
  status:(remote=false)=>ipcRenderer.invoke('status',Boolean(remote)),
+ logs:(source)=>ipcRenderer.invoke('logs:snapshot',String(source)),
  operate:(action)=>ipcRenderer.invoke('operate',String(action)),
  copy:(type)=>ipcRenderer.invoke('copy',String(type)),
  reveal:()=>ipcRenderer.invoke('reveal-key'),

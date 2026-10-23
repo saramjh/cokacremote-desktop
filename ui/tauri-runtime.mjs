@@ -12,6 +12,7 @@ if(!window.mcpManager && api?.core?.invoke){
   },
   operate:action=>invoke('manager_operate',{action:String(action)}),
   dependencies:()=>invoke('manager_dependencies'),
+  logs:source=>invoke('manager_logs',{source:String(source)}),
   installDependency:(name,consent)=>invoke('manager_install_dependency',{name:String(name),consent:consent===true}),
   copy:kind=>invoke('manager_copy',{kind:String(kind)}),
   reveal:()=>invoke('manager_reveal'),
