@@ -4,14 +4,134 @@
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="theme-color" content="#13262e"/>
-  <meta name="description" content="Explore cokacremote, compare Windows stable and Mac preview downloads, and learn secure setup for your own MCP, OAuth and Cloudflare Quick Tunnel."/>
-  <meta property="og:title" content="cokacremote — The connection is yours."/>
-  <meta property="og:description" content="See the connection workflow, choose the correct Windows or Mac release, and follow secure installation guides. macOS preview is not Apple notarized."/>
-  <title>cokacremote — Desktop connection manager</title>
+  <meta name="description" content="cokacremote Desktop Manager helps you monitor a local MCP server, Cloudflare tunnel and OAuth connection for ChatGPT. Compare Windows downloads, Mac previews and setup guides."/>
+  <meta property="og:title" content="cokacremote Desktop Manager — Windows and Mac MCP connection guide"/>
+  <meta property="og:description" content="Manage a local MCP server, Cloudflare Quick Tunnel and OAuth for ChatGPT. Windows stable, Mac unnotarized preview, installation and FAQ."/>
+  <title>cokacremote Desktop Manager | ChatGPT MCP Connection for Windows &amp; Mac</title>
+  <link rel="canonical" href="https://saramjh.github.io/cokacremote-desktop/"/>
+  <meta name="robots" content="index,follow,max-image-preview:large"/>
+  <meta property="og:type" content="website"/>
+  <meta property="og:site_name" content="cokacremote Desktop Manager"/>
+  <meta property="og:url" content="https://saramjh.github.io/cokacremote-desktop/"/>
+  <meta property="og:locale" content="en_US"/>
+  <meta property="og:image" content="https://saramjh.github.io/cokacremote-desktop/social-preview.png"/>
+  <meta property="og:image:width" content="1200"/>
+  <meta property="og:image:height" content="630"/>
+  <meta property="og:image:alt" content="cokacremote Desktop Manager: local MCP to ChatGPT through OAuth and a secure tunnel"/>
+  <meta name="twitter:card" content="summary_large_image"/>
+  <meta name="twitter:title" content="cokacremote Desktop Manager — Local MCP connection guide"/>
+  <meta name="twitter:description" content="Explore local MCP, authenticated tunnels, setup options and current Windows/Mac releases."/>
+  <meta name="twitter:image" content="https://saramjh.github.io/cokacremote-desktop/social-preview.png"/>
+  <link rel="icon" type="image/svg+xml" href="./favicon.svg"/>
+  <link rel="alternate" type="text/plain" title="Plain-text product overview" href="./llms.txt"/>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="./styles.css"/>
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebSite",
+      "@id": "https://saramjh.github.io/cokacremote-desktop/#site",
+      "url": "https://saramjh.github.io/cokacremote-desktop/",
+      "name": "cokacremote Desktop Manager",
+      "inLanguage": "en",
+      "description": "Unofficial local MCP, tunnel and OAuth manager for desktop computers."
+    },
+    {
+      "@type": "WebPage",
+      "@id": "https://saramjh.github.io/cokacremote-desktop/#page",
+      "url": "https://saramjh.github.io/cokacremote-desktop/",
+      "name": "cokacremote Desktop Manager | ChatGPT MCP Connection for Windows & Mac",
+      "isPartOf": {
+        "@id": "https://saramjh.github.io/cokacremote-desktop/#site"
+      },
+      "about": {
+        "@id": "https://saramjh.github.io/cokacremote-desktop/#app"
+      },
+      "inLanguage": "en",
+      "dateModified": "2026-10-23",
+      "description": "Overview, download options and factual setup guidance for an unofficial local MCP connection manager."
+    },
+    {
+      "@type": "SoftwareApplication",
+      "@id": "https://saramjh.github.io/cokacremote-desktop/#app",
+      "name": "cokacremote Desktop Manager",
+      "url": "https://saramjh.github.io/cokacremote-desktop/",
+      "applicationCategory": "DeveloperApplication",
+      "operatingSystem": "Windows 10/11; macOS Apple Silicon",
+      "isAccessibleForFree": true,
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      },
+      "description": "An independent local desktop manager for a separately installed cokacremote MCP server, Cloudflare Quick Tunnel and OAuth checks. Windows v0.3.0 stable and Apple Silicon macOS v0.4.0-rc.2 unnotarized preview are separately released.",
+      "downloadUrl": "https://github.com/saramjh/cokacremote-desktop/releases",
+      "softwareHelp": "https://github.com/saramjh/cokacremote-desktop/blob/main/docs/GETTING_STARTED.md",
+      "sameAs": "https://github.com/saramjh/cokacremote-desktop"
+    },
+    {
+      "@type": "FAQPage",
+      "@id": "https://saramjh.github.io/cokacremote-desktop/#faq",
+      "url": "https://saramjh.github.io/cokacremote-desktop/#faq",
+      "inLanguage": "en",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "What is cokacremote Desktop Manager?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "It is an independent desktop control panel for an upstream local cokacremote MCP server, its Cloudflare Quick Tunnel and OAuth state. It helps you inspect and manage a connection used by ChatGPT; it is not an official OpenAI product."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Does it install the upstream MCP server automatically?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "No. The manager does not bundle the upstream server. Dependency inspection and consent-based installation are available in supported flows, but a new computer may still need prerequisites and manual setup."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Can it connect ChatGPT to my computer without my approval?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "No. You register the current HTTPS /mcp endpoint in your own ChatGPT account if that feature is available, review permissions and complete OAuth authorization. Do not share approval keys or private tokens."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Which download should I choose for Windows and macOS?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Windows 10/11 currently has a v0.3.0 stable ZIP with a top-level INSTALL.cmd. Apple Silicon Macs have a v0.4.0-rc.2 preview: either an unnotarized DMG or ZIP, or a local-source build that needs Node.js, Rust and Xcode Command Line Tools."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Will changing a Mac DMG to ZIP avoid Gatekeeper?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "No. The downloaded macOS preview is not Apple Developer ID notarized. Changing packaging formats does not make the prebuilt app trusted. Use Apple's individual-app approval only if you trust the source; never disable Gatekeeper globally."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Can it still work when my computer is off?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "No. The MCP server and Cloudflare tunnel run on your computer. If the device is asleep, powered off or offline, ChatGPT cannot reach that local service. Quick Tunnel URLs can also change when restarted."
+          }
+        }
+      ]
+    }
+  ]
+}
+  </script>
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
@@ -20,7 +140,7 @@
     <svg viewBox="0 0 48 48" width="37" height="37" fill="none" aria-hidden="true"><path d="M36 12A17 17 0 1 0 36 36" stroke="currentColor" stroke-width="5" stroke-linecap="round"/><path d="M25 24h16" stroke="#65d4c4" stroke-width="5" stroke-linecap="round"/></svg>
     <span>cokacremote <small>/ desktop</small></span>
   </a>
-  <nav aria-label="Primary navigation"><a href="#downloads">Downloads</a><a href="#how">How it works</a><a href="#setup">Set up</a><a href="#security">Security</a></nav>
+  <nav aria-label="Primary navigation"><a href="#downloads">Downloads</a><a href="#how">How it works</a><a href="#setup">Set up</a><a href="#security">Security</a><a href="#faq">FAQ</a></nav>
   <a class="header-github" href="#downloads">Get started <svg viewBox="0 0 18 18" aria-hidden="true"><path d="M4 14 14 4M5 4h9v9"/></svg></a>
 </header>
 <main id="main">
@@ -155,9 +275,21 @@
     </div>
   </div>
 </section>
+<section id="faq" class="section section-faq" aria-labelledby="faqTitle">
+  <div class="section-heading"><div><p class="micro-label">Product answers · Search &amp; setup reference</p><h2 id="faqTitle">Questions before you connect.</h2></div><p>Plain-language answers about the software, platform releases, security and the local MCP connection. These are product facts, not live device diagnostics.</p></div>
+  <div class="faq-list">
+  <details class="faq-item"><summary>What is cokacremote Desktop Manager?</summary><p>It is an independent desktop control panel for an upstream local cokacremote MCP server, its Cloudflare Quick Tunnel and OAuth state. It helps you inspect and manage a connection used by ChatGPT; it is not an official OpenAI product.</p></details>
+  <details class="faq-item"><summary>Does it install the upstream MCP server automatically?</summary><p>No. The manager does not bundle the upstream server. Dependency inspection and consent-based installation are available in supported flows, but a new computer may still need prerequisites and manual setup.</p></details>
+  <details class="faq-item"><summary>Can it connect ChatGPT to my computer without my approval?</summary><p>No. You register the current HTTPS /mcp endpoint in your own ChatGPT account if that feature is available, review permissions and complete OAuth authorization. Do not share approval keys or private tokens.</p></details>
+  <details class="faq-item"><summary>Which download should I choose for Windows and macOS?</summary><p>Windows 10/11 currently has a v0.3.0 stable ZIP with a top-level INSTALL.cmd. Apple Silicon Macs have a v0.4.0-rc.2 preview: either an unnotarized DMG or ZIP, or a local-source build that needs Node.js, Rust and Xcode Command Line Tools.</p></details>
+  <details class="faq-item"><summary>Will changing a Mac DMG to ZIP avoid Gatekeeper?</summary><p>No. The downloaded macOS preview is not Apple Developer ID notarized. Changing packaging formats does not make the prebuilt app trusted. Use Apple&#x27;s individual-app approval only if you trust the source; never disable Gatekeeper globally.</p></details>
+  <details class="faq-item"><summary>Can it still work when my computer is off?</summary><p>No. The MCP server and Cloudflare tunnel run on your computer. If the device is asleep, powered off or offline, ChatGPT cannot reach that local service. Quick Tunnel URLs can also change when restarted.</p></details>
+  </div>
+  <div class="faq-tail">Read the <a href="https://github.com/saramjh/cokacremote-desktop/blob/main/docs/GETTING_STARTED.ko.md" target="_blank" rel="noopener noreferrer">한국어 시작 안내</a> or <a href="https://github.com/saramjh/cokacremote-desktop/blob/main/docs/TROUBLESHOOTING.md" target="_blank" rel="noopener noreferrer">detailed troubleshooting</a>. Source and development history are public on <a href="https://github.com/saramjh/cokacremote-desktop" target="_blank" rel="noopener noreferrer">GitHub</a>.</div>
+</section>
 <section class="closing"><p>Control the machine. Understand the route.</p><h2>The connection is yours.</h2><div><a href="https://github.com/saramjh/cokacremote-desktop" class="button button-bright" target="_blank" rel="noopener noreferrer">Explore the repository <span aria-hidden="true">↗</span></a><a href="https://github.com/saramjh/cokacremote-desktop/blob/main/docs/GETTING_STARTED.ko.md" class="button button-quiet" target="_blank" rel="noopener noreferrer">한국어 설치 가이드 <span aria-hidden="true">↗</span></a></div></section>
 </main>
-<footer><span>cokacremote / desktop · Demo, not a live connection</span><span>Independent operator console for <a href="https://github.com/kstost/cokacremote">kstost/cokacremote</a>.</span><a href="#top">Back to top ↑</a></footer>
+<footer><span>cokacremote / desktop · Demo, not a live connection</span><span>Independent, unofficial manager for <a href="https://github.com/kstost/cokacremote">kstost/cokacremote</a>. Not affiliated with OpenAI.</span><a href="./llms.txt">Plain-text facts</a><a href="./sitemap.xml">Sitemap</a><a href="#top">Back to top ↑</a></footer>
 <script src="./motion.js" type="module"></script>
 </body>
 </html>

@@ -57,3 +57,18 @@ html,body{max-width:100%;overflow-x:clip}
 @media(max-width:1000px){.downloads-lead{grid-template-columns:1fr;gap:23px}.downloads-summary{max-width:780px}.downloads-summary>p:first-child{max-width:780px}}
 @media(max-width:760px){.platform-grid{grid-template-columns:1fr}.downloads-help{align-items:flex-start;flex-direction:column}.downloads-lead{margin-bottom:33px}.platform-card h3{margin-top:25px}}
 @media(max-width:520px){.downloads-inner{padding:65px 22px 72px}.downloads-lead h2{font-size:clamp(37px,9vw,50px)}.platform-card{padding:24px 21px}.platform-meta{gap:8px}.platform-version{font-size:10px}.platform-card h3{font-size:29px}.downloads-help{margin-top:28px}.help-links{gap:12px 22px}.help-links a{min-height:32px}}
+
+/* Crawlable, question-led product reference. Details are native keyboard-accessible HTML. */
+.section-faq{border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.faq-list{border-top:1px solid #b5cbc4}
+.faq-item{border-bottom:1px solid #b5cbc4}
+.faq-item summary{padding:22px 45px 22px 4px;position:relative;list-style:none;cursor:pointer;font-size:clamp(16px,1.45vw,21px);font-weight:600;letter-spacing:-.025em;color:#18343b}
+.faq-item summary::-webkit-details-marker{display:none}
+.faq-item summary::after{content:"+";position:absolute;right:9px;top:20px;color:#237469;font-family:"DM Mono",monospace;font-size:24px;font-weight:400}
+.faq-item[open] summary::after{content:"−"}
+.faq-item summary:focus-visible{outline:3px solid #348d83;outline-offset:3px}
+.faq-item p{margin:0 0 24px 4px;max-width:960px;color:#536e69;font-size:15px;line-height:1.8}
+.faq-tail{margin-top:24px;color:#617b75;font-size:13px;line-height:1.75}
+.faq-tail a{text-decoration:underline;text-underline-offset:3px;color:#245e56}
+.faq-tail a:hover{color:#103d37}
+@media(max-width:520px){.faq-item summary{padding:18px 32px 18px 0;font-size:17px}.faq-item summary::after{right:2px;top:14px}}

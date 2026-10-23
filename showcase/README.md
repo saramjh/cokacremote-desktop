@@ -22,3 +22,7 @@ python -m http.server 8765
 or open `showcase/index.html` in a browser. For production GitHub Pages, use the source-only artifact from the Pages workflow; configure the repository Pages source to **GitHub Actions**.
 
 The repository currently serves GitHub Pages from its gh-pages branch (legacy mode), despite having a workflow for GitHub Actions mode. Always verify published live HTML after deploying; merging the source branch alone is not proof of publishing.
+
+## Search and answer-engine groundwork
+
+The public site now serves a self-referencing canonical, an honest WebSite/WebPage/SoftwareApplication/FAQPage JSON-LD graph corresponding to visible copy, a single-canonical sitemap, an optional llms.txt, favicon and a 1200×630 screenshot-based social preview. This enables basic discovery and citation but **does not promise rankings, indexing, rich FAQ snippets or AI citations**. Do not add fabricated reviews or falsely call an unnotarized Mac preview a trusted installer. Google Search Console/Bing Webmaster Tools submission, ownership verification and observed indexing status are separate operational tasks. Root-of-host robots rules belong to https://saramjh.github.io/robots.txt (maintained in the separate saramjh.github.io repository), not this project subdirectory.

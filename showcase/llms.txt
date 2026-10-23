@@ -1,0 +1,45 @@
+# cokacremote Desktop Manager
+
+> Independent, unofficial desktop manager for a local cokacremote MCP server, Cloudflare Quick Tunnel, and OAuth connection health. It is not an OpenAI product. This text is an optional machine-readable summary, not an indexing directive or a substitute for HTML.
+
+Canonical: https://saramjh.github.io/cokacremote-desktop/
+Project source: https://github.com/saramjh/cokacremote-desktop
+Last reviewed: 2026-10-23
+Language of website: English. A separate Korean getting-started guide is linked below.
+
+## Scope
+
+cokacremote Desktop Manager is an operator-controlled interface for checking and managing a separately installed upstream cokacremote MCP service on a local Windows or Apple Silicon Mac computer. The server may be exposed through a Cloudflare Quick Tunnel and protected by OAuth. ChatGPT plugin registration and OAuth account approval remain the user's actions.
+
+## Releases and installation limitations
+
+- Windows 10/11: v0.3.0 stable ZIP. Extract all files and review the top-level INSTALL.cmd. Windows SmartScreen may warn.
+- Apple Silicon macOS: v0.4.0-rc.2 preview. The prebuilt DMG/ZIP is Apple UNNOTARIZED and may be Gatekeeper-blocked. There is also a source-install tar.gz requiring free Node.js, Rust and Xcode Command Line Tools, Terminal and explicit consent.
+- No verified Intel Mac binary. No guarantee of fully unattended fresh-machine installation.
+- The computer must remain online and awake to expose its local MCP service.
+- Never share OAuth approval keys or privileged logs. Never disable Gatekeeper globally.
+
+## Primary sources
+
+- [Showcase, version selection and FAQ](https://saramjh.github.io/cokacremote-desktop/)
+- [Repository and release history](https://github.com/saramjh/cokacremote-desktop)
+- [Windows v0.3.0 stable](https://github.com/saramjh/cokacremote-desktop/releases/tag/v0.3.0)
+- [macOS v0.4.0-rc.2 unnotarized preview](https://github.com/saramjh/cokacremote-desktop/releases/tag/v0.4.0-rc.2)
+- [English installation and ChatGPT setup](https://github.com/saramjh/cokacremote-desktop/blob/main/docs/GETTING_STARTED.md)
+- [한국어 설치 및 연결](https://github.com/saramjh/cokacremote-desktop/blob/main/docs/GETTING_STARTED.ko.md)
+- [Security and troubleshooting](https://github.com/saramjh/cokacremote-desktop/blob/main/docs/TROUBLESHOOTING.md)
+- [Original upstream server](https://github.com/kstost/cokacremote)
+
+## FAQ
+
+Q: Can the app connect ChatGPT without approval?
+A: No. Users must register the HTTPS MCP URL if their ChatGPT account allows it and authorize OAuth.
+
+Q: Does converting the Mac DMG to ZIP avoid Gatekeeper?
+A: No. The macOS preview is not Apple notarized. An app-specific Apple security exception may be needed for a trusted download.
+
+Q: Is the manager usable when the laptop is powered off?
+A: No. The local MCP server and tunnel run on that computer.
+
+Q: Is this an official OpenAI application?
+A: No. It is an independent, unofficial open-source desktop management project.
