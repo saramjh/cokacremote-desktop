@@ -1,8 +1,8 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "cokacremote Manager",
-  "version": "0.4.0-rc.1",
-  "identifier": "io.github.cokacremote.desktop",
+  "productName": "cokacremote Manager RC",
+  "version": "0.5.0-rc.2",
+  "identifier": "io.github.cokacremote.desktop.rc",
   "build": {
     "frontendDist": "../ui",
     "beforeBuildCommand": "node scripts/prepare-tauri.mjs"
@@ -12,17 +12,17 @@
     "windows": [
       {
         "label": "main",
-        "title": "cokacremote / Connection Manager",
+        "title": "cokacremote Manager RC — Live Trial",
         "width": 1160,
         "height": 785,
-        "minWidth": 940,
-        "minHeight": 670,
+        "minWidth": 960,
+        "minHeight": 680,
         "decorations": false,
         "backgroundColor": "#e9eeed"
       }
     ],
     "security": {
-      "csp": "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src ipc: http://ipc.localhost; object-src 'none'; base-uri 'none'"
+      "csp": "default-src 'self' asset:; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src ipc: http://ipc.localhost; object-src 'none'; base-uri 'none'"
     }
   },
   "bundle": {
@@ -35,15 +35,22 @@
       "icons/icon.icns",
       "icons/32x32.png"
     ],
-    "macOS": {
-      "minimumSystemVersion": "11.0"
-    },
     "resources": [
       "resources/platform/mac/status.mjs",
       "resources/platform/mac/operate.mjs",
       "resources/platform/mac/supervisor.mjs",
+      "resources/platform/mac/boot-worker.mjs",
+      "resources/platform/mac/dependencies.mjs",
+      "resources/platform/mac/install-deps.mjs",
+      "resources/platform/mac/native-sandbox.mjs",
+      "resources/platform/mac/sandbox-worker.mjs",
+      "resources/platform/mac/sandbox-proxy.mjs",
+      "resources/platform/mac/sandbox-cli.mjs",
+      "resources/manager-build-mode.json",
       "resources/core/reconcile.mjs",
-      "resources/bootstrap/macos.sh"
+      "resources/core/mac-setup-controller.mjs",
+      "resources/core/mac-agent-policy.mjs",
+      "resources/embedded-core.tgz"
     ]
   }
 }

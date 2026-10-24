@@ -8,6 +8,8 @@ $ErrorActionPreference='Stop'
 Set-StrictMode -Version Latest
 $repo=Join-Path $env:USERPROFILE 'MCPWorkspace\cokacremote'
 $source='https://github.com/kstost/cokacremote.git'
+$managerSource=Split-Path $PSScriptRoot -Parent
+$bundledSupervisor=Join-Path $managerSource 'platform\windows\supervisor'
 $packages=@{node='OpenJS.NodeJS.LTS';cloudflared='Cloudflare.cloudflared';git='Git.Git'}
 function Installed([string]$name) {
  switch($name) {
@@ -58,5 +60,18 @@ try{
  & npm.cmd run build
  if($LASTEXITCODE -ne 0){throw 'Upstream server build failed'}
 }finally{Pop-Location}
+# The upstream MCP core does not contain the Windows supervisor; copy only
+# fixed, audited scripts from THIS manager package after a successful fresh build.
+$destScripts=Join-Path $repo 'deploy\windows'
+$known=@('cokacremote.ps1','start-cokacremote.ps1','status-cokacremote.ps1',
+         'install-autostart.ps1','patch-windows-exec.ps1','component-recovery.ps1')
+foreach($filename in $known){
+ $src=Join-Path $bundledSupervisor $filename
+ if(-not(Test-Path -LiteralPath $src -PathType Leaf)){throw ('Bundled supervisor missing: '+$filename)}
+}
+New-Item -ItemType Directory -Force -Path $destScripts|Out-Null
+foreach($filename in $known){
+ Copy-Item -LiteralPath (Join-Path $bundledSupervisor $filename) -Destination (Join-Path $destScripts $filename) -ErrorAction Stop
+}
 if(-not (Installed 'cokacremote')){throw 'Installed source failed build verification'}
 [ordered]@{result='INSTALLED';component='cokacremote';requiresReprobe=$true}|ConvertTo-Json -Compress

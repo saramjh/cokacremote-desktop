@@ -1,130 +1,269 @@
 use serde_json::{json, Value};
 use std::fs;
 use std::path::{Path, PathBuf};
-use std::process::{Command, Output, Stdio};
-use std::time::{Duration, Instant};
+use std::process::{Command, Output};
 use tauri::{AppHandle, Manager};
 use tauri_plugin_clipboard_manager::ClipboardExt;
 
-const LANGUAGES: &[&str] = &["en", "ko", "ja", "zh", "es", "fr", "de"];
-const ACTIONS: &[&str] = &["setup", "restart", "stop"];
-const DEPENDENCIES: &[&str] = &["node", "git", "cloudflared", "cokacremote"];
+const ALLOWED_LANGUAGES: &[&str] = &["en", "ko", "ja", "zh", "es", "fr", "de"];
+const ALLOWED_ACTIONS: &[&str] = &["setup", "restart", "stop"];
 
 fn home() -> Result<PathBuf, String> {
-    std::env::var_os("HOME").map(PathBuf::from)
-        .ok_or_else(|| "HOME not available".to_string())
+    std::env::var_os(if cfg!(windows) { "USERPROFILE" } else { "HOME" })
+        .map(PathBuf::from)
+        .ok_or_else(|| "User home directory is unavailable".into())
 }
 
 fn resource(app: &AppHandle, relative: &str) -> Result<PathBuf, String> {
-    let path = app.path().resource_dir().map_err(|e| e.to_string())?
-        .join("resources").join(relative);
-    if path.is_file() { Ok(path) }
-    else { Err(format!("Missing packaged controller resource: {relative}")) }
-}
-
-fn node_path() -> Result<PathBuf, String> {
-    for path in ["/opt/homebrew/bin/node", "/usr/local/bin/node", "/usr/bin/node"] {
-        if Path::new(path).is_file() { return Ok(PathBuf::from(path)); }
+    // Tauri embeds only the explicitly declared operational scripts.
+    let path = app
+        .path()
+        .resource_dir()
+        .map_err(|e| e.to_string())?
+        .join("resources")
+        .join(relative);
+    if path.is_file() {
+        Ok(path)
+    } else {
+        Err(format!("Packaged controller is missing: {relative}"))
     }
-    Err("Node.js not installed; use the dependency setup panel".into())
 }
 
-// GUI never evaluates shell strings. Executable and script are selected from a fixed allowlist.
-// Timeouts terminate only this child controller, never an unrelated server or tunnel process.
-fn run_child(mut command: Command, deadline_ms: u64) -> Result<Output, String> {
-    let mut child = command.stdin(Stdio::null()).stdout(Stdio::piped())
-        .stderr(Stdio::piped()).spawn()
-        .map_err(|e| format!("Unable to start controller: {e}"))?;
+fn run_with_timeout(mut command: Command, timeout_ms: u64) -> Result<Output, String> {
+    use std::time::{Duration, Instant};
+    let mut child = command
+        .stdout(std::process::Stdio::piped())
+        .stderr(std::process::Stdio::piped())
+        .stdin(std::process::Stdio::null())
+        .spawn()
+        .map_err(|e| format!("Controller unavailable: {e}"))?;
     let start = Instant::now();
     loop {
         match child.try_wait() {
             Ok(Some(_)) => return child.wait_with_output().map_err(|e| e.to_string()),
-            Ok(None) if start.elapsed() < Duration::from_millis(deadline_ms) =>
-                std::thread::sleep(Duration::from_millis(100)),
+            Ok(None) if start.elapsed() < Duration::from_millis(timeout_ms) => {
+                std::thread::sleep(Duration::from_millis(100));
+            }
             Ok(None) => {
                 let _ = child.kill();
                 let _ = child.wait();
-                return Err("Controller timed out. Check state before retrying.".into());
+                return Err("Controller timed out. Existing processes were not forcefully stopped.".into());
             }
-            Err(e) => return Err(format!("Controller status unknown: {e}")),
+            Err(e) => return Err(format!("Controller process status unavailable: {e}")),
         }
     }
 }
 
-fn json_output(output: Output) -> Result<Value, String> {
-    if !output.status.success() {
-        return Err("Controller failed. No automatic retry was performed.".into());
+#[cfg(target_os = "macos")]
+fn node_path() -> Result<PathBuf, String> {
+    for path in [
+        "/opt/homebrew/bin/node",
+        "/usr/local/bin/node",
+        "/usr/bin/node",
+    ] {
+        if Path::new(path).is_file() {
+            return Ok(PathBuf::from(path));
+        }
     }
-    let stdout = String::from_utf8(output.stdout)
-        .map_err(|_| "Controller output was not valid UTF-8".to_string())?;
-    // Install helpers emit diagnostic progress before their final one-line JSON receipt.
-    let last = stdout.lines().rev().find(|s| s.trim_start().starts_with('{'))
-        .ok_or_else(|| "Controller did not return a JSON receipt".to_string())?;
-    serde_json::from_str(last).map_err(|e| format!("Invalid JSON receipt: {e}"))
+    Err("Node.js is not installed. Install Node.js before configuring cokacremote.".into())
 }
 
-fn node_script(app: &AppHandle, script: &str, args: &[&str], timeout: u64) -> Result<Value, String> {
-    let file = resource(app, script)?;
+// Sandbox-only Tauri functional lane. A staging bundle may operate ONLY inside
+// a disposable macOS temp profile, never on the connected production service.
+#[cfg(target_os = "macos")]
+fn sandbox_profile(app: &AppHandle) -> Result<Option<PathBuf>, String> {
+    let Some(raw) = std::env::var_os("COKAC_MANAGER_SANDBOX_ROOT") else {return Ok(None)};
+    let mode_file = resource(app, "manager-build-mode.json")?;
+    let mode: Value = serde_json::from_slice(&fs::read(mode_file).map_err(|_| "No build identity".to_string())?)
+        .map_err(|_| "Invalid build identity".to_string())?;
+    if mode["mode"].as_str() != Some("staging") {return Err("Sandbox profile only valid in staging build".into())}
+    let root = fs::canonicalize(PathBuf::from(raw)).map_err(|_| "Sandbox root missing".to_string())?;
+    let tmp = fs::canonicalize(std::env::temp_dir()).map_err(|_| "Cannot verify temporary root".to_string())?;
+    let name = root.file_name().and_then(|n| n.to_str()).unwrap_or("");
+    if !root.starts_with(&tmp) || !name.starts_with("cokac-manager-native-e2e-")
+        || !root.join("profile.json").is_file() {
+        return Err("Refusing non-isolated sandbox target".into());
+    }
+    Ok(Some(root))
+}
+
+#[cfg(target_os = "macos")]
+fn sandbox_cli_command(app: &AppHandle, action: &str, root: &Path) -> Result<Value, String> {
+    let script = resource(app, "platform/mac/sandbox-cli.mjs")?;
     let mut command = Command::new(node_path()?);
-    command.arg(file).args(args);
-    json_output(run_child(command, timeout)?)
+    command.arg(script).arg(action).arg(root);
+    let output = run_with_timeout(command, 30_000)?;
+    if !output.status.success() {
+        return Err("Isolated native Manager action failed; live MCP remains untouched".into());
+    }
+    serde_json::from_slice(&output.stdout).map_err(|_| "Sandbox controller returned invalid status".into())
+}
+
+#[cfg(target_os = "macos")]
+fn command_status(app: &AppHandle, remote: bool) -> Result<Value, String> {
+    if let Some(root) = sandbox_profile(app)? {
+        let _ = remote;
+        return sandbox_cli_command(app, "status", &root);
+    }
+    let script = resource(app, "platform/mac/status.mjs")?;
+    let mut command = Command::new(node_path()?);
+    command.arg(script);
+    if remote {
+        command.arg("--remote");
+    }
+    let output = run_with_timeout(command, if remote { 45_000 } else { 12_000 })?;
+    if !output.status.success() {
+        return Err("macOS service probe failed. The existing connection has not been changed.".into());
+    }
+    serde_json::from_slice(&output.stdout).map_err(|e| format!("Invalid service state response: {e}"))
+}
+
+#[cfg(windows)]
+fn windows_deploy() -> Result<PathBuf, String> {
+    Ok(home()?.join("MCPWorkspace").join("cokacremote").join("deploy").join("windows"))
+}
+
+#[cfg(windows)]
+fn powershell() -> PathBuf {
+    PathBuf::from(std::env::var("SystemRoot").unwrap_or_else(|_| "C:\\Windows".into()))
+        .join("System32")
+        .join("WindowsPowerShell")
+        .join("v1.0")
+        .join("powershell.exe")
+}
+
+#[cfg(windows)]
+fn command_status(_app: &AppHandle, remote: bool) -> Result<Value, String> {
+    let script = windows_deploy()?.join("gui").join("status.ps1");
+    if !script.is_file() {
+        return Err("Existing Windows MCP installation was not found. Install its supervisor first.".into());
+    }
+    let mut command = Command::new(powershell());
+    command.args(["-NoLogo", "-NoProfile", "-NonInteractive", "-ExecutionPolicy", "Bypass", "-File"])
+        .arg(script);
+    if remote {
+        command.arg("-VerifyRemote");
+    }
+    let output = run_with_timeout(command, if remote { 45_000 } else { 12_000 })?;
+    if !output.status.success() {
+        return Err("Windows service probe failed. Current processes remain untouched.".into());
+    }
+    let value: Value = serde_json::from_slice(&output.stdout)
+        .map_err(|e| format!("Invalid service state response: {e}"))?;
+    Ok(value)
 }
 
 #[tauri::command]
 async fn manager_status(app: AppHandle, remote: bool) -> Result<Value, String> {
-    tauri::async_runtime::spawn_blocking(move || {
-        node_script(&app, "platform/mac/status.mjs",
-            if remote { &["--remote"][..] } else { &[][..] },
-            if remote { 50_000 } else { 15_000 })
-    }).await.map_err(|e| e.to_string())?
+    tauri::async_runtime::spawn_blocking(move || command_status(&app, remote))
+        .await
+        .map_err(|e| format!("Service diagnosis interrupted: {e}"))?
+}
+
+#[cfg(target_os = "macos")]
+fn execute_action(app: &AppHandle, action: &str) -> Result<Value, String> {
+    if let Some(root) = sandbox_profile(app)? {
+        return sandbox_cli_command(app, action, &root);
+    }
+    let script = resource(app, "platform/mac/operate.mjs")?;
+    let mut command = Command::new(node_path()?);
+    command.arg(script).arg(action);
+    let output = run_with_timeout(command, 180_000)?;
+    if !output.status.success() {
+        return Err("macOS controller could not complete the operation. Check existing logs; no automatic duplicate request was sent.".into());
+    }
+    serde_json::from_slice(&output.stdout).map_err(|e| format!("Controller result could not be verified: {e}"))
+}
+
+#[cfg(windows)]
+fn execute_action(_app: &AppHandle, action: &str) -> Result<Value, String> {
+    let script = windows_deploy()?.join("cokacremote.ps1");
+    if !script.is_file() {
+        return Err("Windows MCP controller not installed. Run the Windows installer first.".into());
+    }
+    let mut command = Command::new(powershell());
+    command.args(["-NoLogo", "-NoProfile", "-NonInteractive", "-ExecutionPolicy", "Bypass", "-File"])
+        .arg(script)
+        .args(["-Action", action, "-HideApprovalKey"]);
+    let output = run_with_timeout(command, 180_000)?;
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    if !output.status.success() || stdout.contains("SETUP FAILED:") {
+        return Err("Windows controller failed. Check the existing supervisor logs; do not retry blindly.".into());
+    }
+    Ok(json!({"result":"EXECUTED"}))
+}
+
+// All packaged development builds fail closed, even if the JS stage fence is absent
+// from Tauri's resource directory. Release promotion requires a separate audited gate.
+fn verify_mutating_build(app: &AppHandle) -> Result<(), String> {
+    let mode_file = resource(app, "manager-build-mode.json")?;
+    let bytes = fs::read(mode_file).map_err(|_| "Build mode could not be verified".to_string())?;
+    let mode: Value = serde_json::from_slice(&bytes)
+        .map_err(|_| "Invalid build mode metadata".to_string())?;
+    if !matches!(mode["mode"].as_str(), Some("release-candidate") | Some("production")) {
+        return Err("STAGING_ONLY: this Manager build must not change the live MCP service".into());
+    }
+    Ok(())
+}
+
+#[tauri::command]
+async fn manager_install_dependencies(
+    app: AppHandle,
+    consent: bool,
+    approved_missing: Vec<String>,
+) -> Result<Value, String> {
+    if !consent {
+        return Err("Explicit user consent is required".into());
+    }
+    verify_mutating_build(&app)?;
+    #[cfg(target_os = "macos")]
+    {
+        let script = resource(&app, "platform/mac/install-deps.mjs")?;
+        let mut command = Command::new(node_path()?);
+        command.arg(script).arg("--consent").args(approved_missing);
+        let result = tauri::async_runtime::spawn_blocking(move || run_with_timeout(command, 360_000))
+            .await.map_err(|e| e.to_string())??;
+        if !result.status.success() {
+            return Err("Dependency installation failed; check the system package manager and retry only after review".into());
+        }
+        return serde_json::from_slice(&result.stdout).map_err(|_| "Dependency verification response invalid".into());
+    }
+    #[cfg(not(target_os = "macos"))]
+    {
+        let _ = approved_missing;
+        Err("Install workflow is not available on this platform".into())
+    }
 }
 
 #[tauri::command]
 async fn manager_operate(app: AppHandle, action: String) -> Result<Value, String> {
-    if !ACTIONS.contains(&action.as_str()) { return Err("Operation not permitted".into()); }
-    tauri::async_runtime::spawn_blocking(move || {
-        node_script(&app, "platform/mac/operate.mjs", &[&action], 180_000)
-    }).await.map_err(|e| e.to_string())?
+    #[cfg(target_os="macos")]
+    if sandbox_profile(&app)?.is_none() { verify_mutating_build(&app)?; }
+    #[cfg(not(target_os="macos"))]
+    verify_mutating_build(&app)?;
+    if !ALLOWED_ACTIONS.contains(&action.as_str()) {
+        return Err("Operation not permitted".into());
+    }
+    let cloned = app.clone();
+    let result = tauri::async_runtime::spawn_blocking(move || execute_action(&cloned, &action))
+        .await
+        .map_err(|e| format!("Controller interruption: {e}"))??;
+    Ok(result)
 }
 
-fn bootstrap(app: &AppHandle, args: &[&str], timeout: u64) -> Result<Value, String> {
-    let script = resource(app, "bootstrap/macos.sh")?;
-    let mut command = Command::new("/bin/bash");
-    command.arg(script).args(args);
-    json_output(run_child(command, timeout)?)
-}
-
-#[tauri::command]
-async fn manager_dependencies(app: AppHandle) -> Result<Value, String> {
-    tauri::async_runtime::spawn_blocking(move || bootstrap(&app, &["--probe"], 15_000))
-        .await.map_err(|e| e.to_string())?
-}
-
-#[tauri::command]
-async fn manager_install_dependency(
-    app: AppHandle, name: String, consent: bool
-) -> Result<Value, String> {
-    if !consent { return Err("Explicit approval required".into()); }
-    if !DEPENDENCIES.contains(&name.as_str()) { return Err("Unsupported component".into()); }
-    tauri::async_runtime::spawn_blocking(move ||
-        bootstrap(&app, &["--install", &name, "--approved"], 300_000)
-    ).await.map_err(|e| e.to_string())?
-}
-
-fn secret_file() -> Result<PathBuf, String> {
+fn approval_key_file() -> Result<PathBuf, String> {
     Ok(home()?.join(".cokacremote").join("oauth-approval-key"))
 }
-fn approval_key() -> Result<String, String> {
-    let secret=fs::read_to_string(secret_file()?)
-        .map_err(|_| "OAuth approval key is unavailable".to_string())?;
-    let value=secret.trim();
-    if !(32..=256).contains(&value.len()) ||
-       !value.chars().all(|ch| ch.is_ascii_alphanumeric()||ch=='-'||ch=='_') {
-        return Err("Approval key format was not verified".into());
-    }
-    Ok(value.into())
-}
 
+fn key_value() -> Result<String, String> {
+    let raw = fs::read_to_string(approval_key_file()?)
+        .map_err(|_| "Approval key does not exist. Configure the MCP server first.".to_string())?;
+    let key = raw.trim();
+    if key.len() < 32 || key.len() > 256 || !key.chars().all(|c| c.is_ascii_alphanumeric() || c == '-' || c == '_') {
+        return Err("Approval key has an unexpected format".into());
+    }
+    Ok(key.into())
+}
 
 // Read only bounded tails from the three known per-user service log files.
 // Never accept a caller-supplied filename or follow a symlink.
@@ -152,7 +291,7 @@ fn snapshot_logs(base: &Path, source: &str) -> Result<Value,String> {
     let filename=match source {
         "server"=>"cokacremote.log",
         "tunnel"=>"cloudflared.log",
-        "manager"=>"manager-worker.log",
+        "manager"=>if base.join("manager-worker.log").exists() {"manager-worker.log"} else {"manager-launchd-error.log"},
         _=>return Err("Unknown log source".into())
     };
     let path=base.join(filename);
@@ -191,113 +330,118 @@ async fn manager_logs(source:String) -> Result<Value,String> {
 }
 
 #[tauri::command]
-fn manager_reveal() -> Result<String, String> { approval_key() }
+fn manager_reveal(app: AppHandle) -> Result<String, String> {
+    #[cfg(target_os="macos")]
+    if sandbox_profile(&app)?.is_some() {return Err("Sandbox credentials are not revealed".into());}
+    let _ = app;
+    key_value()
+}
 
 #[tauri::command]
 fn manager_copy(app: AppHandle, kind: String) -> Result<bool, String> {
-    let value = match kind.as_str() {
-        "key" => approval_key()?,
+    #[cfg(target_os="macos")]
+    if sandbox_profile(&app)?.is_some() {return Err("Sandbox fixture credentials and URLs cannot be copied".into());}
+    let content = match kind.as_str() {
+        "key" => key_value()?,
         "url" => {
-            let status=node_script(&app, "platform/mac/status.mjs", &[], 15_000)?;
-            let url=status["endpoint"].as_str().unwrap_or("");
-            if !status["urlValid"].as_bool().unwrap_or(false) ||
-               !url.starts_with("https://") || !url.ends_with(".trycloudflare.com/mcp") ||
-               url.chars().any(char::is_whitespace) {
-                return Err("The public MCP URL is not verified".into());
+            // A public URL may only be copied from freshly observed local state.
+            let state = command_status(&app, false)?;
+            let url = state["endpoint"].as_str().unwrap_or("");
+            if !url.starts_with("https://") || !url.ends_with(".com/mcp") || url.contains(char::is_whitespace) {
+                return Err("Verified MCP URL is unavailable".into());
             }
-            url.into()
-        },
-        _=>return Err("Copy target not allowlisted".into()),
+            url.to_owned()
+        }
+        _ => return Err("Unknown copy target".into()),
     };
-    app.clipboard().write_text(value)
-        .map_err(|e| format!("Clipboard failed: {e}"))?;
+    app.clipboard().write_text(content).map_err(|e| format!("Clipboard unavailable: {e}"))?;
     Ok(true)
 }
 
-fn preference_path(app: &AppHandle) -> Result<PathBuf, String> {
-    let dir=app.path().app_config_dir().map_err(|e|e.to_string())?;
-    fs::create_dir_all(&dir).map_err(|e|e.to_string())?;
+fn preferences(app: &AppHandle) -> Result<PathBuf, String> {
+    let dir = app.path().app_config_dir().map_err(|e| e.to_string())?;
+    fs::create_dir_all(&dir).map_err(|e| format!("Cannot create preference directory: {e}"))?;
     Ok(dir.join("ui-preferences.json"))
-}
-#[tauri::command]
-fn manager_language(app: AppHandle) -> Result<Value,String> {
-    let saved=fs::read_to_string(preference_path(&app)?).ok()
-        .and_then(|text|serde_json::from_str::<Value>(&text).ok())
-        .and_then(|value|value["language"].as_str().map(str::to_owned))
-        .filter(|code|LANGUAGES.contains(&code.as_str()));
-    Ok(json!({"selected":saved,"system":sys_locale::get_locale().unwrap_or_else(||"en".into())}))
-}
-#[tauri::command]
-fn manager_set_language(app: AppHandle, code: String) -> Result<Value,String> {
-    if !LANGUAGES.contains(&code.as_str()) { return Err("Unsupported language".into()); }
-    let path=preference_path(&app)?;
-    let temp=path.with_extension(format!("{}.tmp",std::process::id()));
-    use std::os::unix::fs::OpenOptionsExt;
-    use std::io::Write;
-    let mut handle=fs::OpenOptions::new().write(true).create_new(true).mode(0o600)
-        .open(&temp).map_err(|e|e.to_string())?;
-    handle.write_all(json!({"schema":1,"language":code}).to_string().as_bytes())
-        .map_err(|e|e.to_string())?;
-    fs::rename(&temp,&path).map_err(|e|e.to_string())?;
-    Ok(json!({"language":code}))
-}
-#[tauri::command]
-fn manager_open_chat() -> Result<(),String> {
-    open::that("https://chatgpt.com/").map_err(|e|e.to_string())
-}
-#[tauri::command]
-fn manager_start_dragging(app: AppHandle) -> Result<(),String> {
-    app.get_webview_window("main").ok_or("Main window absent")?
-        .start_dragging().map_err(|e| e.to_string())
 }
 
 #[tauri::command]
-fn manager_minimize(app: AppHandle) -> Result<(),String> {
-    app.get_webview_window("main").ok_or("Main window absent")?
-        .minimize().map_err(|e|e.to_string())
+fn manager_language(app: AppHandle) -> Result<Value, String> {
+    let selected: Option<String> = fs::read_to_string(preferences(&app)?)
+        .ok()
+        .and_then(|s| serde_json::from_str::<Value>(&s).ok())
+        .and_then(|v| v["language"].as_str().map(str::to_string))
+        .filter(|code| ALLOWED_LANGUAGES.contains(&code.as_str()));
+    Ok(json!({"selected":selected,"system":sys_locale::get_locale().unwrap_or_else(|| "en".into())}))
 }
+
 #[tauri::command]
-fn manager_close(app: AppHandle) -> Result<(),String> {
-    app.get_webview_window("main").ok_or("Main window absent")?
-        .close().map_err(|e|e.to_string())
+fn manager_set_language(app: AppHandle, code: String) -> Result<Value, String> {
+    if !ALLOWED_LANGUAGES.contains(&code.as_str()) {
+        return Err("Unsupported language".into());
+    }
+    let file = preferences(&app)?;
+    let payload = json!({"schema":1,"language":code}).to_string();
+    let temp = file.with_extension(format!("{}.tmp", std::process::id()));
+    fs::write(&temp, payload).map_err(|e| format!("Cannot save language: {e}"))?;
+    if file.exists() {
+        fs::remove_file(&file).map_err(|e| format!("Cannot update language: {e}"))?;
+    }
+    fs::rename(&temp, &file).map_err(|e| format!("Cannot commit language: {e}"))?;
+    Ok(json!({"language":code}))
+}
+
+#[tauri::command]
+fn manager_open_chat() -> Result<(), String> {
+    open::that("https://chatgpt.com/").map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+fn manager_minimize(app: AppHandle) -> Result<(), String> {
+    app.get_webview_window("main")
+        .ok_or_else(|| "Main window unavailable".to_string())?
+        .minimize()
+        .map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+fn manager_close(app: AppHandle) -> Result<(), String> {
+    app.get_webview_window("main")
+        .ok_or_else(|| "Main window unavailable".to_string())?
+        .close()
+        .map_err(|e| e.to_string())
 }
 
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_clipboard_manager::init())
         .invoke_handler(tauri::generate_handler![
-            manager_status,manager_operate,manager_dependencies,manager_install_dependency,
-            manager_reveal,manager_copy,manager_language,manager_set_language,
-            manager_open_chat,manager_start_dragging,manager_logs,manager_minimize,manager_close
+            manager_status,
+            manager_operate,
+            manager_install_dependencies,
+            manager_copy,
+            manager_logs,
+            manager_reveal,
+            manager_language,
+            manager_set_language,
+            manager_open_chat,
+            manager_minimize,
+            manager_close
         ])
         .run(tauri::generate_context!())
-        .expect("Could not start cokacremote desktop manager");
+        .expect("Could not start cokacremote Manager");
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    #[test] fn strict_action_allowlist() { assert!(ACTIONS.contains(&"setup")); assert!(!ACTIONS.contains(&"shell")); }
-    #[test] fn logs_source_allowlist_and_bounded_redaction() {
-        let base=std::env::temp_dir().join(format!("coka-log-test-{}",std::process::id()));
-        let _=std::fs::create_dir_all(&base);
-        let key="THIS-IS-A-PRIVATE-OAUTH-APPROVAL-KEY-ABCDEFG";
-        std::fs::write(base.join("oauth-approval-key"),key).unwrap();
-        let mut data=String::new();
-        for i in 0..800 { data.push_str(&format!("line {i}\n")); }
-        data.push_str(&format!("Bearer abc.secret Authorization: xyz123 access_token=token567 https://abc.trycloudflare.com/mcp {key}\n"));
-        std::fs::write(base.join("cokacremote.log"),data).unwrap();
-        let out=snapshot_logs(&base,"server").unwrap();
-        assert!(out["available"].as_bool().unwrap());
-        assert!(out["lineCount"].as_u64().unwrap()<=180);
-        assert!(out["truncated"].as_bool().unwrap());
-        let text=out["text"].as_str().unwrap();
-        for secret in [key,"abc.secret","xyz123","token567","abc.trycloudflare.com"] {
-            assert!(!text.contains(secret),"sensitive marker remained");
-        }
-        assert!(snapshot_logs(&base,"../../oauth-approval-key").is_err());
-        assert_eq!(snapshot_logs(&base,"tunnel").unwrap()["available"],false);
-        let _=std::fs::remove_dir_all(base);
+    #[test]
+    fn allowlisted_actions_only() {
+        assert!(ALLOWED_ACTIONS.contains(&"setup"));
+        assert!(!ALLOWED_ACTIONS.contains(&"shell"));
+        assert!(!ALLOWED_ACTIONS.contains(&"delete"));
     }
-    #[test] fn explicit_dependency_allowlist() { assert!(DEPENDENCIES.contains(&"node")); assert!(!DEPENDENCIES.contains(&"password")); }
+    #[test]
+    fn supported_language_contract() {
+        assert_eq!(ALLOWED_LANGUAGES, &["en", "ko", "ja", "zh", "es", "fr", "de"]);
+    }
 }

@@ -92,6 +92,13 @@ $status.localHealth=$status.local
 $status.remoteHealth=$status.public
 $status.oauthAligned=($status.oauth -eq 'HEALTHY')
 $status.anonymous401=($status.authorization -eq 'AUTH_REQUIRED')
+# Readiness is based on owned processes and actual HTTP/OAuth checks, not task.RunState.
+$status.ready=($status.serverOwned -eq $true -and $status.tunnelOwned -eq $true -and
+    $status.local -eq 'HEALTHY' -and $status.urlValid -and $status.approvalKeyAvailable)
+if($VerifyRemote) {
+ $status.ready=($status.ready -and $status.public -eq 'HEALTHY' -and
+     $status.oauth -eq 'HEALTHY' -and $status.authorization -eq 'AUTH_REQUIRED')
+}
 $status.url=$status.endpoint
 $json = $status | ConvertTo-Json -Depth 4 -Compress
 if ($OutputFile) {

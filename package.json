@@ -1,20 +1,24 @@
 {
   "name": "cokacremote-desktop",
-  "version": "0.4.0-rc.1",
-  "description": "Local-first Tauri macOS MCP connection manager",
+  "version": "0.5.0-rc.2",
+  "description": "Local-first Windows/macOS Manager for the existing cokacremote MCP system",
   "private": true,
   "main": "desktop/main.cjs",
   "scripts": {
     "test": "node --test test/*.test.mjs",
     "start": "tauri dev",
-    "package:mac": "tauri build --bundles app,dmg",
+    "package:mac": "tauri build --bundles app",
     "build:tauri": "tauri build",
     "start:legacy": "electron .",
-    "package:mac:legacy": "bash scripts/build-macos-safe.sh arm64 0.3.0"
+    "package:mac:legacy": "bash scripts/build-macos-safe.sh arm64 0.3.0",
+    "prepare:tauri": "node scripts/prepare-tauri.mjs",
+    "desktop": "electron .",
+    "package:windows:source": "powershell.exe -NoProfile -File platform/windows/package.ps1"
   },
   "devDependencies": {
     "electron": "44.9.1",
     "@electron/packager": "19.0.1",
-    "@tauri-apps/cli": "^2.0.0"
-  }
+    "@tauri-apps/cli": "2.12.4"
+  },
+  "type": "module"
 }
