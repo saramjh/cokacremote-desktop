@@ -39,7 +39,9 @@ test('onboarding UI requires checkbox approval and uses dedicated IPC',()=>{
  const html=read('ui/index.html'),js=read('ui/app.js'),main=read('desktop/main.cjs');
  assert.ok(html.includes('id="dependencyConsent"'));
  assert.ok(html.includes('id="dependencyInstall"'));
- assert.ok(js.includes("el('dependencyConsent').checked"));
+ assert.ok(js.includes("const checkbox=el('dependencyConsent')"));
+ assert.ok(js.includes("checkbox.checked"));
+ assert.ok(js.includes("install.disabled=!checkbox.checked"));
  assert.ok(main.includes("if(consent!==true)"));
  assert.ok(main.includes("dependencies:inspect"));
  assert.ok(main.includes("dependencies:install"));

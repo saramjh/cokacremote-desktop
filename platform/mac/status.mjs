@@ -1,8 +1,10 @@
-import {execFileSync} from 'node:child_process';
-import {readFileSync,existsSync,realpathSync} from 'node:fs';
+import {realpathSync} from 'node:fs';
 import {fileURLToPath} from 'node:url';
+import {execFileSync} from 'node:child_process';
+import {readFileSync,existsSync} from 'node:fs';
 import {homedir} from 'node:os';
 import {join} from 'node:path';
+import {diagnoseMacDependencies} from './dependencies.mjs';
 const home=homedir(),state=join(home,'.cokacremote');
 const run=(cmd,args)=>{try{return execFileSync(cmd,args,{encoding:'utf8',timeout:2500,stdio:['ignore','pipe','ignore']}).trim()}catch{return ''}};
 const owned=(pid,part)=>{
@@ -19,7 +21,7 @@ export const processState=()=>{
  const serverOwned=owned(portPid,'dist/src/server.js');
  const tunnelOwned=owned(tunnelPid,'cloudflared tunnel --url');
  const tunnelAlive=Boolean(run('/bin/ps',['-p',String(tunnelPid),'-o','pid=']));
- const label='io.github.cokacremote.desktop';
+ const label='io.github.cokacremote.desktop.rc';
  const loaded=run('/bin/launchctl',['list']).includes(label);
  return {portPid,tunnelPid,serverAlive:portPid>0,serverOwned,tunnelAlive,tunnelOwned,taskState:loaded?'Running':'Ready'};
 };
@@ -34,24 +36,17 @@ export const publicCheck=async(base)=>{
   fetchJSON(base+'/.well-known/oauth-protected-resource/mcp',6000),
   fetch(base+'/mcp',{signal:AbortSignal.timeout(6000)})
  ]);
- const remoteHealth=health.status==='fulfilled'&&health.value?.status==='ok'&&health.value?.service==='cokacremote'&&health.value?.oauthEnabled===true?'HEALTHY':'OFFLINE';
- const metadataRead=a.status==='fulfilled'&&p.status==='fulfilled';
- // Windows already strips a trailing slash from issuer. Match that normalized
- // comparison, without accepting any different host, resource or protocol.
- const oauthAligned=metadataRead&&String(a.value?.issuer||'').replace(/\/$/,'')===base&&p.value?.resource===base+'/mcp';
+ const healthy=health.status==='fulfilled'&&health.value?.status==='ok'&&health.value?.service==='cokacremote'&&health.value?.oauthEnabled===true;
+ const found=a.status==='fulfilled'&&p.status==='fulfilled';
+ const oauthAligned=found&&String(a.value?.issuer||'').replace(/\/$/,'')===base&&p.value?.resource===base+'/mcp';
  const anonymous401=unauthorized.status==='fulfilled'&&unauthorized.value?.status===401;
- return {
-  remoteHealth,oauthAligned,anonymous401,
-  oauthState:metadataRead?(oauthAligned?'HEALTHY':'MISMATCH'):'NOT_CHECKED',
-  authorizationState:unauthorized.status==='fulfilled'?(anonymous401?'AUTH_REQUIRED':'UNEXPECTED_'+unauthorized.value?.status):'NOT_CHECKED',
-  oauthReason:metadataRead?(oauthAligned?'OAUTH_METADATA_VERIFIED':'OAUTH_METADATA_MISMATCH'):'OAUTH_METADATA_UNVERIFIED',
-  authorizationReason:unauthorized.status==='fulfilled'?(anonymous401?'ANONYMOUS_401_VERIFIED':'UNEXPECTED_ANONYMOUS_RESPONSE'):'ANONYMOUS_ACCESS_UNVERIFIED'
- };
+ const authorizationState=unauthorized.status==='fulfilled'?(anonymous401?'AUTH_REQUIRED':'UNEXPECTED_'+unauthorized.value?.status):'NOT_CHECKED';
+ return {remoteHealth:healthy?'HEALTHY':'OFFLINE',oauthAligned,anonymous401,
+  oauthState:found?(oauthAligned?'HEALTHY':'MISMATCH'):'NOT_CHECKED',authorizationState};
 };
 export async function getStatus(remote=false){
  const p=processState();
  let localHealth='OFFLINE',url='',oauthAligned=false,anonymous401=false,remoteHealth='NOT_CHECKED';
- let oauthState='NOT_CHECKED',authorizationState='NOT_CHECKED',oauthReason='OAUTH_NOT_TESTED',authorizationReason='AUTHORIZATION_NOT_TESTED';
  try{
   const health=await fetchJSON('http://127.0.0.1:3000/health');
   if(health?.status==='ok'&&health?.service==='cokacremote'&&health?.oauthEnabled===true)localHealth='HEALTHY';
@@ -67,19 +62,19 @@ export async function getStatus(remote=false){
  }
  if(remote&&url){
   const check=await publicCheck(url.slice(0,-4));
-  ({remoteHealth,oauthAligned,anonymous401,oauthState,authorizationState,oauthReason,authorizationReason}=check);
+  ({remoteHealth,oauthAligned,anonymous401}=check);
  }
  const approvalKeyAvailable=existsSync(join(state,'oauth-approval-key'));
  return {
   checkedAt:new Date().toISOString(),task:p.taskState,taskState:p.taskState,
   local:localHealth,localHealth,public:remoteHealth,remoteHealth,
-  oauth:oauthState,authorization:authorizationState,
-  oauthReason,authorizationReason,
+  oauth:oauthAligned?'HEALTHY':'NOT_CHECKED',authorization:anonymous401?'AUTH_REQUIRED':'NOT_CHECKED',
   serverAlive:p.serverAlive,serverOwned:p.serverOwned,serverPid:p.portPid||null,
   tunnelAlive:p.tunnelAlive,tunnelOwned:p.tunnelOwned,tunnelPid:p.tunnelPid||null,
-  url,urlValid:Boolean(url),endpoint:url,approvalKeyAvailable,
+  url,urlValid:Boolean(url),endpoint:url,approvalKeyAvailable,coreInstalled:existsSync(join(home,'MCPWorkspace','cokacremote','dist','src','server.js')),
   oauthAligned,anonymous401,
   ready:p.serverOwned&&p.tunnelOwned&&localHealth==='HEALTHY'&&Boolean(url)&&approvalKeyAvailable&&(remote?remoteHealth==='HEALTHY'&&oauthAligned&&anonymous401:true),
+  dependencies:diagnoseMacDependencies(),
   detail:'macOS sensor; ChatGPT plugin registration must be checked in ChatGPT'
  };
 }

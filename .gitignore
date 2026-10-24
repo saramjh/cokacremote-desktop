@@ -14,3 +14,7 @@ qa-*
 
 # Generated Tauri frontend bridge snapshot
 /ui/reconcile.mjs
+
+# Disposable release QA and native resource mirrors
+.transfer-files.zip
+.qa-test-userdata/

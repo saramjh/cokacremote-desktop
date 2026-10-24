@@ -1,51 +1,45 @@
 #Requires -Version 5.1
-# Package upstream MCP source, existing Windows supervisor and GUI by allowlist only.
+[CmdletBinding()]
+param([switch]$ValidateOnly)
 $ErrorActionPreference='Stop'
-$repo=Split-Path (Split-Path (Split-Path $PSScriptRoot -Parent) -Parent) -Parent
-$stage=Join-Path $env:TEMP ('cokacremote-gui-'+[guid]::NewGuid().ToString('N'))
-$payload=Join-Path $stage 'cokacremote'
-$dest=Join-Path $repo 'release'
-$zip=Join-Path $dest 'cokacremote-windows-manager-v0.2.0.zip'
-if(Test-Path $zip){throw 'Release ZIP already exists. Refusing overwrite.'}
-New-Item -ItemType Directory -Path $payload -Force|Out-Null
+$root=Split-Path (Split-Path $PSScriptRoot -Parent) -Parent
+$version='0.5.0-rc.2'
+$folder='cokacremote-manager-windows-'+$version
+$filename=$folder+'-SOURCE-INSTALL.zip'
+$allowed=@('INSTALL.cmd','LICENSE','README.md','package.json','package-lock.json',
+           'assets','desktop','core','bootstrap','ui','platform\windows','test')
+foreach($item in $allowed){
+ if(-not(Test-Path -LiteralPath (Join-Path $root $item))){throw ('MISSING_PACKAGE_ASSET '+$item)}
+}
+if($ValidateOnly){
+ & powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -File (Join-Path $root 'platform\windows\install.ps1') -ValidateOnly
+ if($LASTEXITCODE -ne 0){throw 'INSTALLER_VALIDATION_FAILED'}
+ Write-Output 'WINDOWS_SOURCE_PACKAGE_INPUTS_VALID'
+ return
+}
+$release=Join-Path $root 'release'
+$temp=Join-Path $env:TEMP ('cokac-release-'+[guid]::NewGuid().ToString('N'))
+$dest=Join-Path $temp $folder
+$zip=Join-Path $release $filename
+if(Test-Path -LiteralPath $zip){throw 'RELEASE_ALREADY_EXISTS'}
+New-Item -ItemType Directory -Force $dest|Out-Null
 try{
- foreach($item in @('package.json','package-lock.json','tsconfig.json','LICENSE','README.md','.gitignore')){
-  $f=Join-Path $repo $item;if(Test-Path -LiteralPath $f){Copy-Item -LiteralPath $f -Destination $payload}
+ foreach($item in $allowed){
+  $from=Join-Path $root $item
+  $to=Join-Path $dest $item
+  New-Item -ItemType Directory -Force (Split-Path $to -Parent)|Out-Null
+  Copy-Item -LiteralPath $from -Destination $to -Recurse
  }
- foreach($dir in @('src','dist','test')){
-  $f=Join-Path $repo $dir;if(Test-Path -LiteralPath $f){Copy-Item -LiteralPath $f -Destination $payload -Recurse}
+ # Explicitly refuse potentially sensitive or accidentally nested host artifacts.
+ $bad=Get-ChildItem $dest -Recurse -File|Where-Object {
+   $_.Name -match '^(?:\._|\.env$)|\.(?:pem|p12|key|db|sqlite|log)$' -or
+   $_.FullName -match '(\\|/)(?:node_modules|\.git|\.context|\.qa-|release)(\\|/)'
  }
- New-Item -ItemType Directory -Path (Join-Path $payload 'deploy') -Force|Out-Null
- Copy-Item -LiteralPath (Join-Path $repo 'deploy\windows') -Destination (Join-Path $payload 'deploy') -Recurse
- $runtime=Join-Path $payload 'deploy\windows\manager-v2\node_modules'
- if(Test-Path -LiteralPath $runtime){Remove-Item -LiteralPath $runtime -Recurse -Force -ErrorAction Stop}
- foreach($f in @('qa-screen.png','qa-log.txt','qa-error.txt')){Remove-Item -LiteralPath (Join-Path $payload ('deploy\windows\manager-v2\'+$f)) -Force -ErrorAction SilentlyContinue}
- Get-ChildItem -LiteralPath $payload -Recurse -File | Where-Object {
-  $_.Name -match '\.(bak|log|key|pem|p12|db)$' -or
-  $_.Name -eq '.env' -or $_.Name -eq 'oauth-approval-key'
- } | Remove-Item -Force
- $vbs=@'
-Option Explicit
-Dim fso, base, script, sh, cmd
-Set fso = CreateObject("Scripting.FileSystemObject")
-base = fso.GetParentFolderName(WScript.ScriptFullName)
-script = fso.BuildPath(base, "cokacremote\deploy\windows\gui\install.ps1")
-If Not fso.FileExists(script) Then
-  MsgBox "Missing installer: " & script, vbExclamation, "cokacremote"
-  WScript.Quit 1
-End If
-Set sh = CreateObject("WScript.Shell")
-cmd = "powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File """ & script & """"
-sh.Run cmd, 0, False
-'@
- [IO.File]::WriteAllText((Join-Path $stage 'INSTALL.vbs'),$vbs)
- $cmd='@echo off'+[Environment]::NewLine+'start "" wscript.exe "%~dp0INSTALL.vbs"'+[Environment]::NewLine
- [IO.File]::WriteAllText((Join-Path $stage 'INSTALL.cmd'),$cmd)
- New-Item -ItemType Directory -Path $dest -Force|Out-Null
- Compress-Archive -Path (Join-Path $stage '*') -DestinationPath $zip -CompressionLevel Optimal
- Write-Output ('ZIP='+$zip)
- Write-Output ('SHA256='+(Get-FileHash -Algorithm SHA256 -LiteralPath $zip).Hash)
- Write-Output ('BYTES='+(Get-Item -LiteralPath $zip).Length)
+ if($bad){throw ('DISALLOWED_ARTIFACT: '+$bad[0].FullName)}
+ New-Item $release -ItemType Directory -Force|Out-Null
+ Compress-Archive -LiteralPath $dest -DestinationPath $zip -CompressionLevel Optimal
+ Write-Output ('WINDOWS_PACKAGE_CREATED '+$zip)
+ (Get-FileHash -Algorithm SHA256 -LiteralPath $zip).Hash
 }finally{
- Remove-Item -LiteralPath $stage -Recurse -Force -ErrorAction SilentlyContinue
+ Remove-Item $temp -Recurse -Force -ErrorAction SilentlyContinue
 }
