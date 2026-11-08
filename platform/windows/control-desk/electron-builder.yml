@@ -1,0 +1,37 @@
+appId: dev.saramjh.cokacremote.controldesk
+productName: cokacremote Control Desk
+directories:
+  output: release
+files:
+  - main.cjs
+  - preload.cjs
+  - core/**/*
+  - policy/**/*
+  - ui/**/*
+  - assets/**/*
+  - package.json
+extraResources:
+  - from: payload
+    to: payload
+    filter:
+      - "**/*"
+asar: true
+npmRebuild: false
+win:
+  target:
+    - target: nsis
+      arch:
+        - x64
+  icon: assets/app-icon.ico
+  executableName: cokacremote-control-desk
+  verifyUpdateCodeSignature: false
+nsis:
+  oneClick: false
+  perMachine: false
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: always
+  createStartMenuShortcut: true
+  shortcutName: cokacremote Control Desk
+  uninstallDisplayName: cokacremote Control Desk
+artifactName: cokacremote-control-desk-windows-${version}-setup.${ext}
+publish: null
