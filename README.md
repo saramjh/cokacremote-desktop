@@ -54,6 +54,8 @@ Switch between Connection (default) and Logs in the desktop manager. Inside Logs
 
 Download the Windows ZIP from the [v0.3.0 release](https://github.com/saramjh/cokacremote-desktop/releases/tag/v0.3.0). Extract it and run INSTALL.cmd. This is a local management tool rather than a complete unattended fresh-machine bootstrap. It preserves healthy MCP servers and tunnels; Windows SmartScreen may still request a trust decision.
 
+**Next-generation Windows installer (v0.6.0 release candidate):** The actual Windows Control Desk now has an independently buildable [Electron Builder + NSIS setup pipeline](docs/WINDOWS_CONTROL_DESK_RELEASE.md). On a verified `control-desk-v0.6.0` GitHub Release, download the `cokacremote-control-desk-windows-0.6.0-setup.exe` asset. It includes its own Node.js, cloudflared, compiled MCP server, and GUI; a friend's PC does not need a developer workspace or npm. The NSIS installer creates Start Menu/Desktop shortcuts and an uninstaller. The new Windows release is unsigned and distinct from the historical v0.3.0 ZIP; do not mistake a draft PR for an already published release. Public MCP connection starts only after an explicit user command.
+
 ### macOS Apple Silicon — free, locally built app
 
 1. Install the free prerequisites from their official providers: [Node.js](https://nodejs.org/), [Rust](https://rustup.rs/), and Xcode Command Line Tools (run xcode-select --install). A Mac with these tools already installed can reuse them.

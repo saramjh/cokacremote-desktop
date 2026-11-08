@@ -1,0 +1,147 @@
+name: Windows Control Desk installer
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/windows-control-desk.yml"
+      - "platform/windows/control-desk/**"
+      - "docs/WINDOWS_CONTROL_DESK_RELEASE.md"
+  workflow_dispatch:
+  push:
+    tags:
+      - "control-desk-v*"
+
+permissions:
+  contents: read
+
+jobs:
+  windows-installer:
+    name: Build and verify Windows x64 NSIS installer
+    runs-on: windows-2025
+    timeout-minutes: 45
+    steps:
+      - name: Checkout desktop source
+        uses: actions/checkout@v4
+
+      - name: Checkout pinned upstream MCP server
+        uses: actions/checkout@v4
+        with:
+          repository: kstost/cokacremote
+          ref: d7ceca39a0308d4a91238d35e5599ece30e69a19
+          path: _upstream
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24.22.1
+          cache: npm
+          cache-dependency-path: |
+            platform/windows/control-desk/package-lock.json
+            _upstream/package-lock.json
+
+      - name: Assert tag matches app version
+        if: startsWith(github.ref, 'refs/tags/control-desk-v')
+        shell: pwsh
+        run: |
+          $version = (Get-Content platform/windows/control-desk/package.json -Raw | ConvertFrom-Json).version
+          if ($env:GITHUB_REF_NAME -ne "control-desk-v$version") {
+            throw "Tag does not match the Control Desk version."
+          }
+
+      - name: Apply pinned upstream Windows shell patch
+        shell: pwsh
+        run: node platform/windows/control-desk/patch-upstream-win32.mjs _upstream
+
+      - name: Build upstream MCP server
+        working-directory: _upstream
+        shell: pwsh
+        run: |
+          npm ci --no-audit --no-fund
+          if ($LASTEXITCODE -ne 0) { throw 'Upstream npm ci failed' }
+          npm run build
+          if ($LASTEXITCODE -ne 0) { throw 'Upstream build failed' }
+
+      - name: Install Control Desk build dependencies
+        working-directory: platform/windows/control-desk
+        shell: pwsh
+        run: |
+          npm ci --ignore-scripts --no-audit --no-fund
+          if ($LASTEXITCODE -ne 0) { throw 'Control Desk npm ci failed' }
+
+      - name: Validate Control Desk source and packaged-service contracts
+        working-directory: platform/windows/control-desk
+        shell: pwsh
+        run: |
+          npm test
+          if ($LASTEXITCODE -ne 0) { throw 'Control Desk regression tests failed' }
+
+      - name: Download pinned cloudflared for Windows x64
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path _downloads | Out-Null
+          Invoke-WebRequest -UseBasicParsing -Uri 'https://github.com/cloudflare/cloudflared/releases/download/2026.10.1/cloudflared-windows-amd64.exe' -OutFile '_downloads/cloudflared.exe'
+          $expected = '4D2490E74082C5D48DBFEDAF92576FA5BD1702379AB88EB7FAA0CFBE8DC891B6'
+          $actual = (Get-FileHash '_downloads/cloudflared.exe' -Algorithm SHA256).Hash
+          if ($actual -ne $expected) { throw "Cloudflared hash mismatch; expected $expected, got $actual" }
+          $version = & '.\_downloads\cloudflared.exe' --version
+          if ($LASTEXITCODE -ne 0 -or $version -notmatch 'cloudflared version 2026\.10\.1\b') {
+            throw "Unexpected cloudflared version: $version"
+          }
+
+      - name: Stage self-contained runtime and validate scripts
+        shell: pwsh
+        run: |
+          & platform/windows/control-desk/prepare.ps1 -UpstreamRoot _upstream -NodeExecutable (Get-Command node).Source -CloudflaredExecutable _downloads/cloudflared.exe
+          if ($LASTEXITCODE -ne 0 -and $null -ne $LASTEXITCODE) { throw 'Runtime preparation failed' }
+
+      - name: Validate desktop tests and build NSIS installer
+        working-directory: platform/windows/control-desk
+        shell: pwsh
+        run: |
+          npm run dist:win
+          if ($LASTEXITCODE -ne 0) { throw 'Electron Builder failed' }
+          $exe = Get-ChildItem release -File -Filter 'cokacremote-control-desk-windows-*-setup.exe' | Select-Object -First 1
+          if (-not $exe -or $exe.Length -lt 50000000) { throw 'Installer missing or unexpectedly small' }
+          $sum = (Get-FileHash $exe.FullName -Algorithm SHA256).Hash.ToLowerInvariant()
+          Set-Content -LiteralPath 'release/SHA256SUMS.txt' -Encoding ascii -Value "$sum  $($exe.Name)"
+          Write-Output "Built $($exe.Name) (SHA256 $sum)"
+
+      - name: Smoke-test NSIS install, Control Desk GUI and uninstall
+        shell: pwsh
+        run: |
+          $exe = Get-ChildItem platform/windows/control-desk/release -File -Filter '*-setup.exe' | Select-Object -First 1
+          & platform/windows/control-desk/test/smoke-installer.ps1 -InstallerPath $exe.FullName
+          if (-not $?) { throw 'Fresh NSIS install/uninstall smoke test failed' }
+
+      - name: Publish installable files as workflow artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: control-desk-windows-x64
+          path: |
+            platform/windows/control-desk/release/*-setup.exe
+            platform/windows/control-desk/release/SHA256SUMS.txt
+          if-no-files-found: error
+          retention-days: 14
+
+  publish-release:
+    if: startsWith(github.ref, 'refs/tags/control-desk-v')
+    needs: windows-installer
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download verified Windows build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: control-desk-windows-x64
+          path: release-assets
+
+      - name: Publish GitHub Release (only after build succeeds)
+        uses: softprops/action-gh-release@v2
+        with:
+          prerelease: true
+          generate_release_notes: true
+          files: |
+            release-assets/*-setup.exe
+            release-assets/SHA256SUMS.txt

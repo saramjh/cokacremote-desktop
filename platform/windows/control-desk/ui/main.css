@@ -1,0 +1,189 @@
+@font-face{font-family:Workbench;src:local('Bahnschrift SemiCondensed'),local('Bahnschrift'),local('DIN Alternate'),local('Avenir Next');font-display:swap}
+@font-face{font-family:Korean;src:local('Noto Sans KR'),local('NotoSansKR-VF'),local('Apple SD Gothic Neo');font-display:swap}
+:root{--night:#10282d;--deep:#16373a;--ink:#183034;--muted:#647571;--sub:#9ab5b4;--paper:#f4f5f0;--line:#d5dfd9;--green:#15776c;--greenSoft:#e5f0e9;--orange:#ae7534;--orangeSoft:#fcf2df;--red:#a64f3c;--shadow:0 13px 38px rgba(26,48,42,.08);font-family:Korean,Workbench,sans-serif;color:var(--ink)}
+*,*::before,*::after{box-sizing:border-box}
+html,body{margin:0;width:100%;height:100%;background:var(--paper);overflow:hidden}
+body{font-size:14px;letter-spacing:-.018em}
+button,input{font:inherit}
+button{cursor:pointer}button:disabled{cursor:not-allowed;opacity:.52}
+button:focus-visible,input:focus-visible{outline:3px solid #e8a458;outline-offset:3px}
+::selection{background:#1b7777;color:#fff}
+.shell{width:100%;height:100vh;display:flex;flex-direction:column}
+.chrome{height:54px;flex:none;background:#10272b;color:#dfeee8;display:flex;align-items:center;padding:0 16px 0 22px;gap:13px;-webkit-app-region:drag;user-select:none}
+.chrome button{-webkit-app-region:no-drag}
+.brand-mark{display:flex;color:#88d0bc}
+.app-title{font:650 18px Workbench,Korean,sans-serif;letter-spacing:-.025em;white-space:nowrap}
+.app-title span{font:500 10px Workbench,sans-serif;letter-spacing:.06em;color:#87afab;margin-left:5px}
+.chrome-divider{width:1px;height:17px;background:#355358;margin:0 7px}
+.chrome-context{font:12px Workbench,Korean,sans-serif;color:#a3c0bf}
+.spacer{flex:1}
+.chrome-current{font:11px Korean,sans-serif;color:#b5ccc8;display:flex;align-items:center;gap:9px;margin-right:14px}
+.pulse{width:6px;height:6px;border-radius:50%;background:#7eb9a7;box-shadow:0 0 0 4px rgba(126,185,167,.1)}
+.chrome-button{background:none;border:none;width:32px;height:30px;border-radius:4px;color:#a6bfbd;display:flex;align-items:center;justify-content:center}
+.chrome-button:hover{background:#26464a;color:#fff}
+.chrome-button.danger:hover{background:#923d37}
+.chrome-button svg,.text-action svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.body{min-height:0;flex:1;display:grid;grid-template-columns:276px minmax(0,1fr)}
+.rail{background:var(--night);color:#eff8f2;padding:39px 23px 22px;min-height:0;display:flex;flex-direction:column}
+.rail-kicker{margin:0;color:#75b5ae;font:600 11px Workbench,sans-serif;letter-spacing:.03em}
+.rail-heading{font-size:24px;line-height:1.43;font-weight:700;letter-spacing:-.05em;margin-top:15px}
+.topology{margin-top:43px;display:flex;flex-direction:column}
+.topology-row{display:flex;gap:12px;align-items:center;min-width:0}
+.topology-row b{display:block;font-weight:600;font-size:13px;white-space:nowrap}
+.topology-row small{display:block;color:#9ab2b0;margin-top:4px;font-size:10.5px}
+.symbol{width:42px;height:43px;border:1px solid #466665;display:flex;align-items:center;justify-content:center;border-radius:5px;background:#183a3c;color:#a5d5c7;flex:none}
+.symbol svg{width:27px;height:27px;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.top-status{margin-left:auto;color:#b8c7bd;font:600 9px Workbench,sans-serif;letter-spacing:.02em;white-space:nowrap}
+.top-status.stable,.top-status.healthy{color:#8adaad}
+.top-status.offline{color:#f2b17b}
+.topology-join{height:32px;margin-left:21px;width:1px;background:#55766f;position:relative}
+.join-dot{display:block;position:absolute;width:5px;height:5px;border:1px solid #93baad;background:var(--night);border-radius:50%;left:-2px;top:14px}
+.rail-divider{height:1px;background:#426365;margin-top:35px}
+.section-eyebrow{font:600 12px Workbench,sans-serif;color:#add2c7;margin:28px 0 10px}
+.rail-note{font-size:12px;color:#a6c2be;line-height:1.85;margin:0;word-break:keep-all}
+.rail-foot{margin-top:auto;padding-top:24px;display:flex;gap:10px;color:#bbd0cd;font-size:11px;line-height:1.5}
+.rail-foot svg{width:20px;height:20px;stroke:#93cfc0;fill:none;stroke-width:1.5;flex:none}
+.rail-foot em{font-size:10px;color:#8caaa5;font-style:normal}
+.workspace{padding:34px 38px 22px 40px;overflow-y:auto;min-height:0;scrollbar-width:thin;scrollbar-color:#a8c0b7 transparent}
+.heading-top{display:flex;align-items:center;justify-content:space-between}
+.eyebrow{font-size:11px;color:#407e71;font-weight:700}
+.refresh-time{font:11px Workbench,sans-serif;color:#82928a}
+h1{font-size:29px;line-height:1.34;font-weight:700;letter-spacing:-.055em;margin:10px 0 4px}
+.status-heading p{color:#49615a;font-size:12.5px;margin:0;line-height:1.7;word-break:keep-all}
+.operation-banner{display:flex;gap:15px;align-items:center;padding:18px 18px 17px;margin:27px 0 25px;background:#e5eee8;border:1px solid #c4ded0;border-radius:6px}
+.operation-banner.warn{background:#fbefdd;border-color:#e4cda9}
+.operation-banner.block{background:#f8e9e6;border-color:#dfbbb7}
+.operation-mark{height:41px;width:41px;flex:none;border-radius:50%;background:#d1e8d9;display:flex;align-items:center;justify-content:center;color:#177369}
+.operation-mark svg{height:23px;width:23px;stroke:currentColor;stroke-width:2;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.operation-banner.warn .operation-mark{background:#f0ddb8;color:#955b27}
+.operation-banner.block .operation-mark{background:#eec6be;color:#a44a3c}
+.operation-title{font-size:15px;font-weight:700}
+.operation-copy{font-size:11.5px;color:#425c55;margin-top:5px;line-height:1.5}
+.operation-banner.warn .operation-copy{color:#7c664a}
+.operation-summary{min-width:0}
+.decision-code{font:600 10px Workbench,sans-serif;letter-spacing:.02em;color:#6a8e82;margin-left:auto;white-space:nowrap}
+.section-row{display:flex;align-items:baseline;justify-content:space-between;margin:0 0 9px;gap:12px}
+h2{font-size:15px;letter-spacing:-.04em;margin:0}
+.section-caption{color:#526760;font-size:11px}
+.services{border-top:1px solid var(--line)}
+.service-line{display:flex;align-items:center;gap:16px;border-bottom:1px solid var(--line);padding:13px 4px;min-height:69px}
+.svc-indicator{width:8px;height:8px;border-radius:50%;background:#bdc6bd;box-shadow:0 0 0 5px #e6ebe5;flex:none}
+.svc-indicator.healthy{background:#15917c;box-shadow:0 0 0 5px #e3efe7}
+.svc-indicator.unhealthy{background:#b87237;box-shadow:0 0 0 5px #f6e8d4}
+.svc-main{flex:1;min-width:0}
+.svc-main h3{font-size:12.5px;margin:0;font-weight:700}
+.svc-main p{font-size:11px;color:#4c6259;margin:4px 0 0}
+.svc-meta{text-align:right;min-width:125px}
+.svc-meta strong{display:block;font-size:12px;font-weight:700}
+.svc-meta small{display:block;color:#4c625a;margin-top:4px;font:11px Workbench,sans-serif}
+.tools-heading{margin-top:26px}
+.connection-area{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.entry{min-width:0}
+.entry label{font-weight:700;font-size:11.5px;display:block;margin:0 0 9px}
+.field-line{display:flex;height:42px;min-width:0;background:#fff;border:1px solid #cfdad3;border-radius:4px;overflow:hidden}
+.field-line:focus-within{border-color:#448e87}
+.field-line input{background:transparent;color:#284747;letter-spacing:-.02em;font:12px Workbench,Korean,sans-serif;flex:1;min-width:0;border:0;padding:0 11px;outline:none}
+.field-action{border:0;border-left:1px solid #dbe4dc;padding:0 11px;white-space:nowrap;background:#e8f1ed;color:#18665d;font-size:11px;font-weight:700;display:flex;align-items:center;gap:6px}
+.field-action:hover{background:#d6e8e0}
+.field-action.subdued{background:#f0f3ef;color:#64766b}
+.field-action svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.field-helper{margin:7px 0 0;color:#5a5047;font-size:10.5px;line-height:1.45}
+.operations{border-top:1px solid var(--line);margin-top:24px;padding:22px 0 20px;display:flex;gap:15px;align-items:center;justify-content:space-between}
+.operations p{color:#56675d;font-size:11px;margin:6px 0 0;line-height:1.5}
+.action-buttons{display:flex;gap:7px;align-items:center;flex-wrap:wrap;justify-content:flex-end;max-width:560px}
+.btn{padding:10px 12px;border-radius:5px;border:1px solid transparent;white-space:nowrap;font-size:11.3px;font-weight:700;min-height:39px}
+.btn.primary{background:#1d776f;color:#fff}
+.btn.primary:hover{background:#125c55}
+.btn.secondary{background:#dbeae3;color:#206a62;border-color:#cbded5}
+.btn.secondary:hover{background:#cfe3d8}
+.btn.ghost{background:transparent;border-color:#bdcac1;color:#52655d}
+.btn.ghost:hover{background:#e4e9e2}
+.btn.danger-ghost{background:transparent;border-color:#e6c9ba;color:#ac6147}
+.btn.danger-ghost:hover{background:#f5e7de}
+.bottom-line{display:flex;justify-content:space-between;gap:18px;align-items:center;border-top:1px solid var(--line);padding-top:14px}
+.bottom-line>div{display:flex;align-items:center;gap:8px;color:#53665b;font-size:11px}
+.footer-symbol{width:9px;height:9px;border:1.5px solid #9ba7a0;border-radius:50%;position:relative;flex:none}
+.footer-symbol::after{content:"";position:absolute;height:3px;width:3px;border-radius:50%;background:#9ba7a0;top:2px;left:2px}
+.text-action{color:#1b706b;border:0;background:none;font-size:11px;font-weight:700;display:flex;align-items:center;gap:5px;padding:4px}
+.notice-bar{font-size:10px;color:#5b6b61;margin:14px 0 0;min-height:16px}
+.notice-bar.warning{color:#9a5b34}
+@media(max-width:1080px){.body{grid-template-columns:238px minmax(0,1fr)}.rail{padding:32px 17px}.workspace{padding:27px 25px 20px}.connection-area{gap:12px}.operations{align-items:flex-start;flex-direction:column}.action-buttons{justify-content:flex-start}}
+@media(max-height:750px){.workspace{padding-top:20px}.operation-banner{margin:18px 0}.service-line{padding:10px 4px;min-height:59px}.tools-heading{margin-top:18px}.operations{margin-top:17px;padding:16px 0}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{transition:none!important;animation:none!important}}
+
+/* Language settings: a compact, keyboard-accessible instrument control. */
+.language-control{display:flex;align-items:center;gap:9px;-webkit-app-region:no-drag;flex:none}
+.language-control label{font-size:10px;font-weight:650;color:#b3d0c6;white-space:nowrap}
+.language-select-wrap{width:135px;height:31px;border:1px solid #50726f;background:#1c3b3e;position:relative;border-radius:4px;display:flex;align-items:center}
+.language-select-wrap:focus-within{outline:2px solid #8fd1be;outline-offset:1px}
+.language-select-wrap select{appearance:none;-webkit-appearance:none;border:0;background:transparent;color:#f0f6f2;font-size:11px;font-weight:600;outline:none;width:100%;height:100%;padding:0 29px 0 10px;cursor:pointer}
+.language-select-wrap select option{background:#173338;color:#f0f6f2}
+.language-select-wrap svg{width:14px;height:14px;stroke:#9bd6c6;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;fill:none;pointer-events:none;position:absolute;right:9px;top:8px}
+.rail-heading{white-space:pre-line}
+.rail-foot span span{display:block}
+.rail-foot em{display:block;margin-top:3px}
+.top-status{white-space:normal;max-width:73px;overflow-wrap:anywhere;text-align:right;line-height:1.25}
+.service-line{min-width:0}
+.operations{flex-direction:column;align-items:stretch;gap:15px}
+.action-buttons{max-width:none;justify-content:flex-start;gap:9px}
+.action-buttons .btn{white-space:normal;line-height:1.3;min-height:41px}
+.btn.primary{min-width:148px}
+.connection-area{min-width:0}
+@media(max-width:1100px){
+ .chrome{gap:9px;padding-left:12px;padding-right:10px}
+ .app-title{font-size:16px}
+ .app-title span{font-size:9px}
+ .chrome-context{font-size:11px}
+ .chrome-divider{margin:0 3px}
+ .language-select-wrap{width:119px}
+ .chrome-current{margin-right:4px;font-size:10px}
+}
+
+/* Honest indeterminate progress for existing Electron Manager commands. */
+.operation-overlay[hidden]{display:none!important}
+.operation-overlay{position:fixed;inset:48px 0 0;z-index:70;display:grid;place-items:center;background:rgba(16,30,35,.5);backdrop-filter:blur(2.5px)}
+.operation-panel{width:min(410px,calc(100vw - 42px));background:#f0f5ef;border:1px solid #b1c8ba;border-radius:9px;padding:25px 26px 24px;box-shadow:0 20px 65px rgba(0,0,0,.23);color:#193d35}
+.operation-tag{font:600 10px Workbench,sans-serif;letter-spacing:.14em;color:#398175}
+.operation-panel h2{font-size:19px;margin:13px 0 17px;line-height:1.4;font-weight:720}
+.operation-panel p{font-size:12px;line-height:1.6;margin:13px 0 0;color:#526b60}
+.operation-progress{height:6px;border-radius:6px;background:#cddfd4;overflow:hidden}
+.operation-motion{height:100%;width:30%;background:#187d70;display:block;border-radius:6px;animation:manager-indeterminate 1.35s ease-in-out infinite alternate}
+@keyframes manager-indeterminate{from{transform:translateX(0)}to{transform:translateX(230%)}}
+@media(prefers-reduced-motion:reduce){.operation-motion{animation:none;width:100%}}
+
+/* Log viewer is a separate on-demand workspace; no console content in overview. */
+[hidden]{display:none!important}
+.workspace-tabs{display:flex;gap:4px;border-bottom:1px solid #bfcdc7;margin:-12px 0 27px;position:sticky;top:-34px;background:var(--paper);z-index:4;padding-top:10px}
+.workspace-tab{border:0;background:transparent;padding:11px 19px 14px;color:#5f706d;font-weight:650;font-size:13px;border-bottom:3px solid transparent}
+.workspace-tab:hover{color:#155f59;background:#e9f0e9}
+.workspace-tab.active{color:#136c62;border-bottom-color:#19796c}
+.workspace-tab:focus-visible,.log-source:focus-visible,.logs-button:focus-visible{outline:3px solid #e8a458;outline-offset:2px}
+.logs-panel{min-height:400px;display:flex;flex-direction:column;gap:17px}
+.logs-heading{display:flex;justify-content:space-between;align-items:center;gap:20px}
+.logs-heading h1{margin:6px 0 4px}
+.logs-heading p:not(.section-eyebrow){font-size:12px;line-height:1.6;color:#536963;margin:5px 0 0;max-width:690px}
+.logs-heading .section-eyebrow{margin:0;color:#387c70;font-size:11px}
+.logs-heading-status{font:600 11px Workbench,Korean,sans-serif;color:#4f746c;display:flex;align-items:center;gap:8px;flex:none}
+.logs-light{width:7px;height:7px;border-radius:50%;background:#329583}
+.logs-source-tabs{display:flex;flex-wrap:wrap;gap:6px}
+.log-source{background:#e5ede7;color:#416259;border:1px solid #bed2c8;font-size:12px;font-weight:650;padding:11px 16px;border-radius:4px}
+.log-source.active{color:#e9f6f1;background:#1b5e59;border-color:#1b5e59}
+.logs-toolbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.logs-toolbar label{font-size:12px;color:#55736b;font-weight:650}
+.logs-toolbar input{background:#fff;border:1px solid #acc4bb;border-radius:3px;padding:10px 12px;min-width:170px;flex:1;max-width:440px;min-height:39px;color:#1b3834}
+.logs-button{background:#e5eee9;border:1px solid #acc7bb;color:#30655c;border-radius:4px;padding:10px 15px;font-size:12px;font-weight:650;min-height:40px}
+.logs-button.active{background:#c5e6d7;color:#155d4e;border-color:#8dc3b2}
+.log-console-wrap{min-height:260px;flex:1;background:#0f262a;border:1px solid #3c5e5e;border-radius:5px;overflow:hidden;box-shadow:inset 0 1px 0 #345457}
+.log-console{margin:0;padding:19px 21px;overflow:auto;min-height:260px;max-height:clamp(260px,52vh,620px);height:100%;font:12px/1.65 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;white-space:pre-wrap;overflow-wrap:anywhere;color:#c5e3d8;tab-size:2}
+.log-help{font:11px Workbench,Korean,sans-serif;color:#607973;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px 18px;line-height:1.6}
+@media(max-width:1100px){.workspace-tabs{margin-top:-8px;top:-27px}.logs-heading{align-items:flex-start;flex-direction:column;gap:12px}}
+@media(max-width:700px){.logs-toolbar input{flex-basis:100%;max-width:none;order:1}.log-console{font-size:11px;padding:14px}.workspace-tab{padding:11px 13px}.log-source{flex:1;padding:11px 9px}.logs-heading h1{font-size:25px}}
+
+/* A single explicit boundary between the user's manual connection choice and OS logon tasks. */
+.boot-policy{border-top:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:16px;padding:13px 0 14px}
+.boot-policy strong{font-size:11.5px;color:#314c43}
+.boot-policy p{font-size:10.8px;color:#567168;line-height:1.5;margin:4px 0 0;max-width:480px}
+.boot-policy button{font-size:10.5px;flex:none;padding:8px 11px;max-width:290px;white-space:normal}
+@media(max-width:900px){.boot-policy{flex-wrap:wrap}.boot-policy button{max-width:none}}
+
+.endpoint-warning{font-size:10.5px;line-height:1.55;color:#885f36;margin:0 0 12px;word-break:keep-all}
